@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Onelegstudios\StarterKitSetup\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class StarterKitSetupCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'starter-kit-setup';
 
     public $description = 'My command';
 
