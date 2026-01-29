@@ -2,9 +2,9 @@
 
 namespace Onelegstudios\StarterKitSetup;
 
+use Onelegstudios\StarterKitSetup\Commands\StarterKitSetupCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Onelegstudios\StarterKitSetup\Commands\StarterKitSetupCommand;
 
 class StarterKitSetupServiceProvider extends PackageServiceProvider
 {

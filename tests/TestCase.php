@@ -3,8 +3,8 @@
 namespace Onelegstudios\StarterKitSetup\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Orchestra\Testbench\TestCase as Orchestra;
 use Onelegstudios\StarterKitSetup\StarterKitSetupServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
