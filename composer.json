@@ -1,6 +1,6 @@
 {
     "name": "onelegstudios/starter-kit-setup",
-    "description": "This is my package starter-kit-setup",
+    "description": "This is setup package for onelegstudios/starter-kit",
     "keywords": [
         "onelegstudios",
         "laravel",
