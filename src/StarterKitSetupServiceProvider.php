@@ -2,7 +2,7 @@
 
 namespace Onelegstudios\StarterKitSetup;
 
-use Onelegstudios\StarterKitSetup\Commands\StarterKitSetupCommand;
+use Onelegstudios\StarterKitSetup\Commands\UsingHerdCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -17,6 +17,6 @@ class StarterKitSetupServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('starter-kit-setup')
-            ->hasCommand(StarterKitSetupCommand::class);
+            ->hasCommand(UsingHerdCommand::class);
     }
 }
