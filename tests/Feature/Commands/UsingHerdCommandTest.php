@@ -36,7 +36,7 @@ test('command shows no changes needed when using herd and already commented', fu
     $originalContent = file_get_contents($configPath);
 
     // Ensure the line is commented
-    if (!str_contains($originalContent, "        // 'HTTP' => 'php artisan serve',")) {
+    if (! str_contains($originalContent, "        // 'HTTP' => 'php artisan serve',")) {
         $content = str_replace(
             "        'HTTP' => 'php artisan serve',",
             "        // 'HTTP' => 'php artisan serve',",
@@ -63,7 +63,7 @@ test('command uncomments http line when not using herd', function () {
     $originalContent = file_get_contents($configPath);
 
     // Ensure the line is commented
-    if (!str_contains($originalContent, "        // 'HTTP' => 'php artisan serve',")) {
+    if (! str_contains($originalContent, "        // 'HTTP' => 'php artisan serve',")) {
         $content = str_replace(
             "        'HTTP' => 'php artisan serve',",
             "        // 'HTTP' => 'php artisan serve',",
@@ -118,7 +118,7 @@ test('command fails when config file not found', function () {
     $originalContent = file_get_contents($configPath);
 
     // Temporarily move the config file
-    rename($configPath, $configPath . '.backup');
+    rename($configPath, $configPath.'.backup');
 
     try {
         $this->artisan('starter-kit-setup:using-herd')
@@ -127,6 +127,6 @@ test('command fails when config file not found', function () {
             ->assertExitCode(1);
     } finally {
         // Restore the config file
-        rename($configPath . '.backup', $configPath);
+        rename($configPath.'.backup', $configPath);
     }
 });

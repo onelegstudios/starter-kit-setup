@@ -3,6 +3,7 @@
 namespace Onelegstudios\StarterKitSetup\Commands;
 
 use Illuminate\Console\Command;
+
 use function Laravel\Prompts\confirm;
 
 class UsingHerdCommand extends Command
