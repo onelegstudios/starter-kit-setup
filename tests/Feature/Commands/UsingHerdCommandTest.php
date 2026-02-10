@@ -2,17 +2,20 @@
 
 use Orchestra\Testbench\Concerns\WithWorkbench;
 
+use function Orchestra\Testbench\workbench_path;
+
 uses(WithWorkbench::class);
 
 test('command comments http line when using herd', function () {
     $configPath = config_path('solo.php');
-    $originalContent = file_get_contents($configPath);
+    $templatePath = workbench_path('config/solo.php');
+    $templateContent = file_get_contents($templatePath);
 
     // Ensure the line is uncommented before the test
     $content = str_replace(
         "        // 'HTTP' => 'php artisan serve',",
         "        'HTTP' => 'php artisan serve',",
-        $originalContent
+        $templateContent
     );
 
     file_put_contents($configPath, $content);
@@ -27,23 +30,24 @@ test('command comments http line when using herd', function () {
         $this->assertStringContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
         $this->assertStringNotContainsString("        'HTTP' => 'php artisan serve',", $updatedContent);
     } finally {
-        file_put_contents($configPath, $originalContent);
+        if (file_exists($configPath)) {
+            unlink($configPath);
+        }
     }
 });
 
 test('command shows no changes needed when using herd and already commented', function () {
     $configPath = config_path('solo.php');
-    $originalContent = file_get_contents($configPath);
+    $templatePath = workbench_path('config/solo.php');
+    $templateContent = file_get_contents($templatePath);
 
     // Ensure the line is commented
-    if (! str_contains($originalContent, "        // 'HTTP' => 'php artisan serve',")) {
-        $content = str_replace(
-            "        'HTTP' => 'php artisan serve',",
-            "        // 'HTTP' => 'php artisan serve',",
-            $originalContent
-        );
-        file_put_contents($configPath, $content);
-    }
+    $content = str_replace(
+        "        'HTTP' => 'php artisan serve',",
+        "        // 'HTTP' => 'php artisan serve',",
+        $templateContent
+    );
+    file_put_contents($configPath, $content);
 
     try {
         $this->artisan('starter-kit-setup:using-herd')
@@ -54,23 +58,24 @@ test('command shows no changes needed when using herd and already commented', fu
         $updatedContent = file_get_contents($configPath);
         $this->assertStringContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
     } finally {
-        file_put_contents($configPath, $originalContent);
+        if (file_exists($configPath)) {
+            unlink($configPath);
+        }
     }
 });
 
 test('command uncomments http line when not using herd', function () {
     $configPath = config_path('solo.php');
-    $originalContent = file_get_contents($configPath);
+    $templatePath = workbench_path('config/solo.php');
+    $templateContent = file_get_contents($templatePath);
 
     // Ensure the line is commented
-    if (! str_contains($originalContent, "        // 'HTTP' => 'php artisan serve',")) {
-        $content = str_replace(
-            "        'HTTP' => 'php artisan serve',",
-            "        // 'HTTP' => 'php artisan serve',",
-            $originalContent
-        );
-        file_put_contents($configPath, $content);
-    }
+    $content = str_replace(
+        "        'HTTP' => 'php artisan serve',",
+        "        // 'HTTP' => 'php artisan serve',",
+        $templateContent
+    );
+    file_put_contents($configPath, $content);
 
     try {
         $this->artisan('starter-kit-setup:using-herd')
@@ -82,19 +87,22 @@ test('command uncomments http line when not using herd', function () {
         $this->assertStringContainsString("        'HTTP' => 'php artisan serve',", $updatedContent);
         $this->assertStringNotContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
     } finally {
-        file_put_contents($configPath, $originalContent);
+        if (file_exists($configPath)) {
+            unlink($configPath);
+        }
     }
 });
 
 test('command shows already uncommented when not using herd and already uncommented', function () {
     $configPath = config_path('solo.php');
-    $originalContent = file_get_contents($configPath);
+    $templatePath = workbench_path('config/solo.php');
+    $templateContent = file_get_contents($templatePath);
 
     // Ensure the line is uncommented
     $content = str_replace(
         "        // 'HTTP' => 'php artisan serve',",
         "        'HTTP' => 'php artisan serve',",
-        $originalContent
+        $templateContent
     );
     file_put_contents($configPath, $content);
 
@@ -109,16 +117,18 @@ test('command shows already uncommented when not using herd and already uncommen
         $this->assertStringContainsString("        'HTTP' => 'php artisan serve',", $updatedContent);
         $this->assertStringNotContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
     } finally {
-        file_put_contents($configPath, $originalContent);
+        if (file_exists($configPath)) {
+            unlink($configPath);
+        }
     }
 });
 
 test('command fails when config file not found', function () {
     $configPath = config_path('solo.php');
-    $originalContent = file_get_contents($configPath);
 
-    // Temporarily move the config file
-    rename($configPath, $configPath.'.backup');
+    if (file_exists($configPath)) {
+        unlink($configPath);
+    }
 
     try {
         $this->artisan('starter-kit-setup:using-herd')
@@ -126,7 +136,8 @@ test('command fails when config file not found', function () {
             ->expectsOutput('Config file solo.php not found.')
             ->assertExitCode(1);
     } finally {
-        // Restore the config file
-        rename($configPath.'.backup', $configPath);
+        if (file_exists($configPath)) {
+            unlink($configPath);
+        }
     }
 });
