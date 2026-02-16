@@ -8,6 +8,10 @@ use function Laravel\Prompts\confirm;
 
 class UsingHerdCommand extends Command
 {
+    private const SOLO_HTTP_LINE = "        'HTTP' => 'php artisan serve',";
+
+    private const SOLO_HTTP_LINE_COMMENTED = "        // 'HTTP' => 'php artisan serve',";
+
     /**
      * The name and signature of the console command.
      *
@@ -40,41 +44,52 @@ class UsingHerdCommand extends Command
             return self::FAILURE;
         }
 
+        if (! is_file($configPath) || ! is_readable($configPath)) {
+            $this->error('Unable to read config file solo.php.');
+
+            return self::FAILURE;
+        }
+
         $content = file_get_contents($configPath);
 
-        if ($usingHerd) {
-            $updated = str_replace(
-                "        'HTTP' => 'php artisan serve',",
-                "        // 'HTTP' => 'php artisan serve',",
-                $content
-            );
+        if ($content === false) {
+            $this->error('Unable to read config file solo.php.');
 
-            if ($content === $updated) {
-                $this->info('Great! No changes needed.');
+            return self::FAILURE;
+        }
 
-                return self::SUCCESS;
-            }
+        $search = $usingHerd ? self::SOLO_HTTP_LINE : self::SOLO_HTTP_LINE_COMMENTED;
+        $replace = $usingHerd ? self::SOLO_HTTP_LINE_COMMENTED : self::SOLO_HTTP_LINE;
 
-            file_put_contents($configPath, $updated);
-            $this->info('Successfully disabled HTTP server in solo.php configuration.');
+        $updated = str_replace($search, $replace, $content, $replacements);
+
+        if ($replacements === 0) {
+            $message = $usingHerd
+                ? 'Great! No changes needed.'
+                : 'The HTTP server line is already uncommented or not found.';
+
+            $this->info($message);
 
             return self::SUCCESS;
         }
 
-        $updated = str_replace(
-            "        // 'HTTP' => 'php artisan serve',",
-            "        'HTTP' => 'php artisan serve',",
-            $content
-        );
+        if (! is_writable($configPath)) {
+            $this->error('Unable to write updates to config file solo.php.');
 
-        if ($content === $updated) {
-            $this->warn('The HTTP server line is already uncommented or not found.');
-
-            return self::SUCCESS;
+            return self::FAILURE;
         }
 
-        file_put_contents($configPath, $updated);
-        $this->info('Successfully enabled HTTP server in solo.php configuration.');
+        if (file_put_contents($configPath, $updated) === false) {
+            $this->error('Unable to write updates to config file solo.php.');
+
+            return self::FAILURE;
+        }
+
+        $message = $usingHerd
+            ? 'Successfully disabled HTTP server in solo.php configuration.'
+            : 'Successfully enabled HTTP server in solo.php configuration.';
+
+        $this->info($message);
 
         return self::SUCCESS;
     }
