@@ -42,6 +42,12 @@ class UsingHerdCommand extends Command
 
         $content = file_get_contents($configPath);
 
+        if ($content === false) {
+            $this->error('Unable to read config file solo.php.');
+
+            return self::FAILURE;
+        }
+
         if ($usingHerd) {
             $updated = str_replace(
                 "        'HTTP' => 'php artisan serve',",
