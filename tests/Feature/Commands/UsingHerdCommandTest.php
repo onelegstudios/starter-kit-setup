@@ -141,3 +141,24 @@ test('command fails when config file not found', function () {
         }
     }
 });
+
+test('command fails when config path cannot be read as file', function () {
+    $configPath = config_path('solo.php');
+
+    if (file_exists($configPath)) {
+        unlink($configPath);
+    }
+
+    mkdir($configPath);
+
+    try {
+        $this->artisan('starter-kit-setup:using-herd')
+            ->expectsConfirmation('Are you using Laravel Herd?', 'yes')
+            ->expectsOutput('Unable to read config file solo.php.')
+            ->assertExitCode(1);
+    } finally {
+        if (is_dir($configPath)) {
+            rmdir($configPath);
+        }
+    }
+});
