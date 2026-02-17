@@ -68,6 +68,11 @@
         "lint": [
             "@php vendor/bin/pint --ansi",
             "@php vendor/bin/phpstan analyse --verbose --ansi"
+        ],
+        "check": [
+            "@format",
+            "@analyse",
+            "@test"
         ]
     },
     "config": {
