@@ -2,6 +2,14 @@
 
 All notable changes to `starter-kit-setup` will be documented in this file.
 
+## v1.0.0 - 2026-02-17
+
+### What's Changed
+
+* prepere for 0.1.2 by @oneleggedswede in https://github.com/onelegstudios/starter-kit-setup/pull/7
+
+**Full Changelog**: https://github.com/onelegstudios/starter-kit-setup/compare/0.1.1...v1.0.0
+
 ## v0.1.1 - 2026-02-12
 
 ### What's Changed
