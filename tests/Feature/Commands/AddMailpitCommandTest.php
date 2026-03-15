@@ -1,26 +1,25 @@
 <?php
 
-use Orchestra\Testbench\Concerns\WithWorkbench;
-
 use function Orchestra\Testbench\workbench_path;
+use Orchestra\Testbench\Concerns\WithWorkbench;
 
 uses(WithWorkbench::class);
 
-test('command adds milpit line to solo config', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+test('command adds mailpit line to solo config', function () {
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     file_put_contents($configPath, $templateContent);
 
     try {
         $this->artisan('starter-kit-setup:add-mailpit')
-            ->expectsOutput('Successfully added Milpit command to solo.php configuration.')
+            ->expectsOutput('Successfully added Mailpit command to solo.php configuration.')
             ->assertExitCode(0);
 
         $updatedContent = file_get_contents($configPath);
-        $this->assertStringContainsString("        'Milpit' => Command::from('mailpt')->lazy(),", $updatedContent);
-        $this->assertSame(1, substr_count($updatedContent, "        'Milpit' => Command::from('mailpt')->lazy(),"));
+        $this->assertStringContainsString("        'Mailpit' => Command::from('mailpt')->lazy(),", $updatedContent);
+        $this->assertSame(1, substr_count($updatedContent, "        'Mailpit' => Command::from('mailpt')->lazy(),"));
     } finally {
         if (file_exists($configPath)) {
             unlink($configPath);
@@ -28,25 +27,25 @@ test('command adds milpit line to solo config', function () {
     }
 });
 
-test('command is idempotent when milpit line already exists', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+test('command is idempotent when mailpit line already exists', function () {
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
-    $contentWithMilpit = str_replace(
+    $contentWithMailpit = str_replace(
         '        // Lazy commands do not automatically start when Solo starts.',
-        "        'Milpit' => Command::from('mailpt')->lazy(),\n\n        // Lazy commands do not automatically start when Solo starts.",
+        "        'Mailpit' => Command::from('mailpt')->lazy(),\n\n        // Lazy commands do not automatically start when Solo starts.",
         $templateContent
     );
-    file_put_contents($configPath, $contentWithMilpit);
+    file_put_contents($configPath, $contentWithMailpit);
 
     try {
         $this->artisan('starter-kit-setup:add-mailpit')
-            ->expectsOutput('Milpit command is already present in solo.php configuration.')
+            ->expectsOutput('Mailpit command is already present in solo.php configuration.')
             ->assertExitCode(0);
 
         $updatedContent = file_get_contents($configPath);
-        $this->assertSame(1, substr_count($updatedContent, "        'Milpit' => Command::from('mailpt')->lazy(),"));
+        $this->assertSame(1, substr_count($updatedContent, "        'Mailpit' => Command::from('mailpt')->lazy(),"));
     } finally {
         if (file_exists($configPath)) {
             unlink($configPath);
@@ -93,8 +92,8 @@ test('command fails when config path cannot be read as file', function () {
 });
 
 test('command fails when insertion anchor is not found', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     $contentWithoutAnchor = str_replace(
