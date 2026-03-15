@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 
 class AddMailpitCommand extends Command
 {
-    private const SOLO_MAILPIT_LINE = "        'Mailpit' => Command::from('mailpt')->lazy(),";
+    private const SOLO_MAILPIT_LINE = "        'Mailpit' => Command::from('mailpit')->lazy(),";
 
     private const SOLO_INSERT_ANCHOR = '        // Lazy commands do not automatically start when Solo starts.';
 
