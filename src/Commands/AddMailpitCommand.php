@@ -1,4 +1,5 @@
 <?php
+
 namespace Onelegstudios\StarterKitSetup\Commands;
 
 use Illuminate\Console\Command;
@@ -39,7 +40,7 @@ class AddMailpitCommand extends Command
 
         $updated = str_replace(
             self::SOLO_INSERT_ANCHOR,
-            self::SOLO_MAILPIT_LINE . "\n\n" . self::SOLO_INSERT_ANCHOR,
+            self::SOLO_MAILPIT_LINE."\n\n".self::SOLO_INSERT_ANCHOR,
             $content,
             $replacements
         );
