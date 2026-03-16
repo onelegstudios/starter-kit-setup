@@ -69,7 +69,7 @@
             "@php vendor/bin/pint --ansi",
             "@php vendor/bin/phpstan analyse --verbose --ansi"
         ],
-        "check": [
+        "verify": [
             "@format",
             "@analyse",
             "@test"
