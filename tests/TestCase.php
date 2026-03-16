@@ -1,5 +1,4 @@
 <?php
-
 namespace Onelegstudios\StarterKitSetup\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -8,25 +7,46 @@ use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
+    private string $uniqueConfigPath = '';
+
     protected function setUp(): void
     {
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Onelegstudios\\StarterKitSetup\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn(string $modelName) => 'Onelegstudios\\StarterKitSetup\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
     }
 
-    protected function getPackageProviders($app)
+    protected function tearDown(): void
+    {
+        if ($this->uniqueConfigPath !== '' && is_dir($this->uniqueConfigPath)) {
+            foreach (glob($this->uniqueConfigPath . '/*') ?: [] as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+
+            rmdir($this->uniqueConfigPath);
+        }
+
+        parent::tearDown();
+    }
+
+    protected function getPackageProviders($app): array
     {
         return [
             StarterKitSetupServiceProvider::class,
         ];
     }
 
-    public function getEnvironmentSetUp($app)
+    public function getEnvironmentSetUp($app): void
     {
         config()->set('database.default', 'testing');
+
+        $this->uniqueConfigPath = sys_get_temp_dir() . '/starterkit_test_' . getmypid() . '_' . md5(uniqid((string) mt_rand(), true));
+        mkdir($this->uniqueConfigPath, 0755, true);
+        $app->useConfigPath($this->uniqueConfigPath);
 
         /*
          foreach (\Illuminate\Support\Facades\File::allFiles(__DIR__ . '/../database/migrations') as $migration) {
