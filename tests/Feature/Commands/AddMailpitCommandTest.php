@@ -19,8 +19,8 @@ test('command adds mailpit line to solo config', function () {
             ->assertExitCode(0);
 
         $updatedContent = file_get_contents($configPath);
-        $this->assertStringContainsString("        'Mailpit' => Command::from('mailpt')->lazy(),", $updatedContent);
-        $this->assertSame(1, substr_count($updatedContent, "        'Mailpit' => Command::from('mailpt')->lazy(),"));
+        $this->assertStringContainsString("        'Mailpit' => Command::from('mailpit')->lazy(),", $updatedContent);
+        $this->assertSame(1, substr_count($updatedContent, "        'Mailpit' => Command::from('mailpit')->lazy(),"));
     } finally {
         if (file_exists($configPath)) {
             unlink($configPath);
@@ -35,7 +35,7 @@ test('command is idempotent when mailpit line already exists', function () {
 
     $contentWithMailpit = str_replace(
         '        // Lazy commands do not automatically start when Solo starts.',
-        "        'Mailpit' => Command::from('mailpt')->lazy(),\n\n        // Lazy commands do not automatically start when Solo starts.",
+        "        'Mailpit' => Command::from('mailpit')->lazy(),\n\n        // Lazy commands do not automatically start when Solo starts.",
         $templateContent
     );
     file_put_contents($configPath, $contentWithMailpit);
@@ -46,7 +46,7 @@ test('command is idempotent when mailpit line already exists', function () {
             ->assertExitCode(0);
 
         $updatedContent = file_get_contents($configPath);
-        $this->assertSame(1, substr_count($updatedContent, "        'Mailpit' => Command::from('mailpt')->lazy(),"));
+        $this->assertSame(1, substr_count($updatedContent, "        'Mailpit' => Command::from('mailpit')->lazy(),"));
     } finally {
         if (file_exists($configPath)) {
             unlink($configPath);

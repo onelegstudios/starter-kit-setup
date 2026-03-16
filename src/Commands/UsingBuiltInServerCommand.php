@@ -6,21 +6,21 @@ use Illuminate\Console\Command;
 
 use function Laravel\Prompts\confirm;
 
-class UsingHerdCommand extends Command
+class UsingBuiltInServerCommand extends Command
 {
     private const SOLO_HTTP_LINE = "        'HTTP' => 'php artisan serve',";
 
     private const SOLO_HTTP_LINE_COMMENTED = "        // 'HTTP' => 'php artisan serve',";
 
-    protected $signature = 'starter-kit-setup:using-herd';
+    protected $signature = 'starter-kit-setup:using-built-in-server';
 
-    protected $description = 'Configure soloterm/solo config file for using Herd or artisan serve.';
+    protected $description = 'Configure soloterm/solo config file for using the built-in HTTP server or Herd.';
 
     public function handle(): int
     {
-        $usingHerd = confirm(
-            label: 'Are you using Laravel Herd?',
-            default: true
+        $usingBuiltInServer = confirm(
+            label: 'Are you using the built-in HTTP server?',
+            default: false
         );
 
         $configPath = config_path('solo.php');
@@ -39,26 +39,22 @@ class UsingHerdCommand extends Command
 
         $content = file_get_contents($configPath);
 
-        $search = $usingHerd ? self::SOLO_HTTP_LINE : self::SOLO_HTTP_LINE_COMMENTED;
-        $replace = $usingHerd ? self::SOLO_HTTP_LINE_COMMENTED : self::SOLO_HTTP_LINE;
+        $search = $usingBuiltInServer ? self::SOLO_HTTP_LINE_COMMENTED : self::SOLO_HTTP_LINE;
+        $replace = $usingBuiltInServer ? self::SOLO_HTTP_LINE : self::SOLO_HTTP_LINE_COMMENTED;
 
         $updated = str_replace($search, $replace, $content, $replacements);
 
         if ($replacements === 0) {
-            $message = $usingHerd
-                ? 'Great! No changes needed.'
-                : 'The HTTP server line is already uncommented or not found.';
-
-            $this->info($message);
+            $this->info('Great! No changes needed.');
 
             return self::SUCCESS;
         }
 
         file_put_contents($configPath, $updated);
 
-        $message = $usingHerd
-            ? 'Successfully disabled HTTP server in solo.php configuration.'
-            : 'Successfully enabled HTTP server in solo.php configuration.';
+        $message = $usingBuiltInServer
+            ? 'Successfully enabled HTTP server in solo.php configuration.'
+            : 'Successfully disabled HTTP server in solo.php configuration.';
 
         $this->info($message);
 

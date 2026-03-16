@@ -6,7 +6,7 @@ use function Orchestra\Testbench\workbench_path;
 
 uses(WithWorkbench::class);
 
-test('command comments http line when using herd', function () {
+test('command comments http line when not using built-in server', function () {
     $configPath = config_path('solo.php');
     $templatePath = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
@@ -21,8 +21,8 @@ test('command comments http line when using herd', function () {
     file_put_contents($configPath, $content);
 
     try {
-        $this->artisan('starter-kit-setup:using-herd')
-            ->expectsConfirmation('Are you using Laravel Herd?', 'yes')
+        $this->artisan('starter-kit-setup:using-built-in-server')
+            ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
             ->expectsOutput('Successfully disabled HTTP server in solo.php configuration.')
             ->assertExitCode(0);
 
@@ -36,7 +36,7 @@ test('command comments http line when using herd', function () {
     }
 });
 
-test('command shows no changes needed when using herd and already commented', function () {
+test('command shows no changes needed when not using built-in server and already commented', function () {
     $configPath = config_path('solo.php');
     $templatePath = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
@@ -50,8 +50,8 @@ test('command shows no changes needed when using herd and already commented', fu
     file_put_contents($configPath, $content);
 
     try {
-        $this->artisan('starter-kit-setup:using-herd')
-            ->expectsConfirmation('Are you using Laravel Herd?', 'yes')
+        $this->artisan('starter-kit-setup:using-built-in-server')
+            ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
             ->expectsOutput('Great! No changes needed.')
             ->assertExitCode(0);
 
@@ -64,7 +64,7 @@ test('command shows no changes needed when using herd and already commented', fu
     }
 });
 
-test('command uncomments http line when not using herd', function () {
+test('command uncomments http line when using built-in server', function () {
     $configPath = config_path('solo.php');
     $templatePath = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
@@ -78,8 +78,8 @@ test('command uncomments http line when not using herd', function () {
     file_put_contents($configPath, $content);
 
     try {
-        $this->artisan('starter-kit-setup:using-herd')
-            ->expectsConfirmation('Are you using Laravel Herd?', 'no')
+        $this->artisan('starter-kit-setup:using-built-in-server')
+            ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
             ->expectsOutput('Successfully enabled HTTP server in solo.php configuration.')
             ->assertExitCode(0);
 
@@ -93,7 +93,7 @@ test('command uncomments http line when not using herd', function () {
     }
 });
 
-test('command shows already uncommented when not using herd and already uncommented', function () {
+test('command shows no changes needed when using built-in server and already uncommented', function () {
     $configPath = config_path('solo.php');
     $templatePath = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
@@ -107,9 +107,9 @@ test('command shows already uncommented when not using herd and already uncommen
     file_put_contents($configPath, $content);
 
     try {
-        $this->artisan('starter-kit-setup:using-herd')
-            ->expectsConfirmation('Are you using Laravel Herd?', 'no')
-            ->expectsOutput('The HTTP server line is already uncommented or not found.')
+        $this->artisan('starter-kit-setup:using-built-in-server')
+            ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
+            ->expectsOutput('Great! No changes needed.')
             ->assertExitCode(0);
 
         // Verify nothing changed
@@ -131,8 +131,8 @@ test('command fails when config file not found', function () {
     }
 
     try {
-        $this->artisan('starter-kit-setup:using-herd')
-            ->expectsConfirmation('Are you using Laravel Herd?', 'yes')
+        $this->artisan('starter-kit-setup:using-built-in-server')
+            ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
             ->expectsOutput('Config file solo.php not found.')
             ->assertExitCode(1);
     } finally {
@@ -152,8 +152,8 @@ test('command fails when config path cannot be read as file', function () {
     mkdir($configPath);
 
     try {
-        $this->artisan('starter-kit-setup:using-herd')
-            ->expectsConfirmation('Are you using Laravel Herd?', 'yes')
+        $this->artisan('starter-kit-setup:using-built-in-server')
+            ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
             ->expectsOutput('Unable to read config file solo.php.')
             ->assertExitCode(1);
     } finally {
