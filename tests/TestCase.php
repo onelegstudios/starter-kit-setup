@@ -1,4 +1,5 @@
 <?php
+
 namespace Onelegstudios\StarterKitSetup\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -14,14 +15,14 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn(string $modelName) => 'Onelegstudios\\StarterKitSetup\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
+            fn (string $modelName) => 'Onelegstudios\\StarterKitSetup\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
     }
 
     protected function tearDown(): void
     {
         if ($this->uniqueConfigPath !== '' && is_dir($this->uniqueConfigPath)) {
-            foreach (glob($this->uniqueConfigPath . '/*') ?: [] as $file) {
+            foreach (glob($this->uniqueConfigPath.'/*') ?: [] as $file) {
                 if (is_file($file)) {
                     unlink($file);
                 }
@@ -44,7 +45,7 @@ class TestCase extends Orchestra
     {
         config()->set('database.default', 'testing');
 
-        $this->uniqueConfigPath = sys_get_temp_dir() . '/starterkit_test_' . getmypid() . '_' . md5(uniqid((string) mt_rand(), true));
+        $this->uniqueConfigPath = sys_get_temp_dir().'/starterkit_test_'.getmypid().'_'.md5(uniqid((string) mt_rand(), true));
         mkdir($this->uniqueConfigPath, 0755, true);
         $app->useConfigPath($this->uniqueConfigPath);
 
