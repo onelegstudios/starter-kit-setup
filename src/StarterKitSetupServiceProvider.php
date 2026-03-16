@@ -3,6 +3,7 @@
 namespace Onelegstudios\StarterKitSetup;
 
 use Onelegstudios\StarterKitSetup\Commands\AddMailpitCommand;
+use Onelegstudios\StarterKitSetup\Commands\SetupCommand;
 use Onelegstudios\StarterKitSetup\Commands\UsingBuiltInServerCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -19,6 +20,7 @@ class StarterKitSetupServiceProvider extends PackageServiceProvider
         $package
             ->name('starter-kit-setup')
             ->hasCommand(UsingBuiltInServerCommand::class)
-            ->hasCommand(AddMailpitCommand::class);
+            ->hasCommand(AddMailpitCommand::class)
+            ->hasCommand(SetupCommand::class);
     }
 }
