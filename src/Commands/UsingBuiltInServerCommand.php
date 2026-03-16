@@ -14,13 +14,13 @@ class UsingBuiltInServerCommand extends Command
 
     protected $signature = 'starter-kit-setup:using-built-in-server';
 
-    protected $description = 'Configure soloterm/solo config file for using the built-in HTTP server or Herd.';
+    protected $description = 'Configure soloterm/solo config file for using the built-in HTTP server.';
 
     public function handle(): int
     {
         $usingBuiltInServer = confirm(
             label: 'Are you using the built-in HTTP server?',
-            default: false
+            default: true
         );
 
         $configPath = config_path('solo.php');
