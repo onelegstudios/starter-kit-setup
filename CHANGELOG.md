@@ -2,6 +2,15 @@
 
 All notable changes to `starter-kit-setup` will be documented in this file.
 
+## Add Laravel 13 support - 2026-03-19
+
+### What's Changed
+
+* Bump ramsey/composer-install from 3 to 4 by @dependabot[bot] in https://github.com/onelegstudios/starter-kit-setup/pull/13
+* Add Laravel 13 support
+
+**Full Changelog**: https://github.com/onelegstudios/starter-kit-setup/compare/v1.1.0...v2.0.0
+
 ## V1.1.0 - 2026-03-16
 
 ### What's Changed
