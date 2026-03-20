@@ -1,8 +1,8 @@
 <?php
 
 use SoloTerm\Solo\Commands\Command;
-use SoloTerm\Solo\Commands\EnhancedTailCommand;
 use SoloTerm\Solo\Commands\MakeCommand;
+use SoloTerm\Solo\Commands\TestCommand;
 use SoloTerm\Solo\Hotkeys;
 use SoloTerm\Solo\Themes;
 
@@ -47,7 +47,8 @@ return [
     */
     'commands' => [
         'About' => 'php artisan solo:about',
-        'Logs' => EnhancedTailCommand::file(storage_path('logs/laravel.log')),
+        // For enhanced log viewing with vendor frame collapsing, see soloterm/vtail
+        'Logs' => 'tail -f -n 100 '.storage_path('logs/laravel.log'),
         'Vite' => 'npm run dev',
         'Make' => new MakeCommand,
         // 'HTTP' => 'php artisan serve',
@@ -57,16 +58,8 @@ return [
         'Reverb' => Command::from('php artisan reverb:start --debug')->lazy(),
         'Pint' => Command::from('./vendor/bin/pint --ansi')->lazy(),
         'Queue' => Command::from('php artisan queue:work')->lazy(),
-        'Tests' => Command::from('php artisan test --colors=always')->withEnv(['APP_ENV' => 'testing'])->lazy(),
+        'Tests' => TestCommand::artisan(),
     ],
-
-    /**
-     * By default, we prefer to use GNU Screen as an intermediary between Solo
-     * and the underlying process. This helps us with many issues, including
-     * PTY and some ANSI rendering things. Not all environments have Screen,
-     * so you can turn it off for a slightly degraded experience.
-     */
-    'use_screen' => (bool) env('SOLO_USE_SCREEN', true),
 
     /*
     |--------------------------------------------------------------------------
