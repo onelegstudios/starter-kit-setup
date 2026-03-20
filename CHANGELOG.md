@@ -2,6 +2,22 @@
 
 All notable changes to `starter-kit-setup` will be documented in this file.
 
+## v2.0.1 - 2026-03-20
+
+- Update solo.php to the latest version - Upstream package dependency update
+- Refactor AddMailpitCommand - Improved insertion of Mailpit line in solo config
+- Update Laravel matrix in run-tests workflow - Added Laravel 13 support to CI/CD
+- Update PHP matrix in run-tests workflow - Added PHP 8.5 support to CI/CD
+- Update PHP- Stan workflow to PHP 8.5 - Updated linting environment and standardized quotes
+
+Key themes:
+
+PHP 8.5 and Laravel 13 support additions
+Dependency and workflow maintenance
+Minor refactoring and code quality improvements
+
+**Full Changelog**: https://github.com/onelegstudios/starter-kit-setup/compare/v2.0.0...v2.0.1
+
 ## Add Laravel 13 support - 2026-03-19
 
 ### What's Changed
