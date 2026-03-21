@@ -1,14 +1,13 @@
 <?php
 
-use Orchestra\Testbench\Concerns\WithWorkbench;
-
 use function Orchestra\Testbench\workbench_path;
+use Orchestra\Testbench\Concerns\WithWorkbench;
 
 uses(WithWorkbench::class);
 
 test('setup command executes all setup commands', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     $content = str_replace(
@@ -48,7 +47,6 @@ test('setup command fails when first command fails', function () {
     try {
         $this->artisan('starter-kit-setup:setup')
             ->expectsOutput('Running starter-kit-setup commands...')
-            ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
             ->expectsOutput('Config file solo.php not found.')
             ->expectsOutput('The using-built-in-server command failed.')
             ->assertExitCode(1);
