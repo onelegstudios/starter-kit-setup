@@ -1,14 +1,13 @@
 <?php
 
-use Orchestra\Testbench\Concerns\WithWorkbench;
-
 use function Orchestra\Testbench\workbench_path;
+use Orchestra\Testbench\Concerns\WithWorkbench;
 
 uses(WithWorkbench::class);
 
 test('command comments http line when not using built-in server', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     // Ensure the line is uncommented before the test
@@ -37,8 +36,8 @@ test('command comments http line when not using built-in server', function () {
 });
 
 test('command shows no changes needed when not using built-in server and already commented', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     // Ensure the line is commented
@@ -65,8 +64,8 @@ test('command shows no changes needed when not using built-in server and already
 });
 
 test('command uncomments http line when using built-in server', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     // Ensure the line is commented
@@ -94,8 +93,8 @@ test('command uncomments http line when using built-in server', function () {
 });
 
 test('command shows no changes needed when using built-in server and already uncommented', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     // Ensure the line is uncommented
@@ -132,7 +131,6 @@ test('command fails when config file not found', function () {
 
     try {
         $this->artisan('starter-kit-setup:using-built-in-server')
-            ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
             ->expectsOutput('Config file solo.php not found.')
             ->assertExitCode(1);
     } finally {
@@ -153,7 +151,6 @@ test('command fails when config path cannot be read as file', function () {
 
     try {
         $this->artisan('starter-kit-setup:using-built-in-server')
-            ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
             ->expectsOutput('Unable to read config file solo.php.')
             ->assertExitCode(1);
     } finally {
@@ -172,8 +169,8 @@ test('command fails when config file is not readable', function () {
         $this->markTestSkipped('Cannot test file permissions as root.');
     }
 
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     file_put_contents($configPath, $templateContent);
@@ -181,7 +178,6 @@ test('command fails when config file is not readable', function () {
 
     try {
         $this->artisan('starter-kit-setup:using-built-in-server')
-            ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
             ->expectsOutput('Config file solo.php could not be read.')
             ->assertExitCode(1);
     } finally {
@@ -201,8 +197,8 @@ test('command fails when config file cannot be written', function () {
         $this->markTestSkipped('Cannot test file permissions as root.');
     }
 
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     $content = str_replace(
