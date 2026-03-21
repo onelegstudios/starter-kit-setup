@@ -1,14 +1,13 @@
 <?php
 
-use Orchestra\Testbench\Concerns\WithWorkbench;
-
 use function Orchestra\Testbench\workbench_path;
+use Orchestra\Testbench\Concerns\WithWorkbench;
 
 uses(WithWorkbench::class);
 
 test('command comments http line when not using built-in server', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     // Ensure the line is uncommented before the test
@@ -37,8 +36,8 @@ test('command comments http line when not using built-in server', function () {
 });
 
 test('command shows no changes needed when not using built-in server and already commented', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     // Ensure the line is commented
@@ -65,8 +64,8 @@ test('command shows no changes needed when not using built-in server and already
 });
 
 test('command uncomments http line when using built-in server', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     // Ensure the line is commented
@@ -94,8 +93,8 @@ test('command uncomments http line when using built-in server', function () {
 });
 
 test('command shows no changes needed when using built-in server and already uncommented', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     // Ensure the line is uncommented
@@ -164,12 +163,16 @@ test('command fails when config path cannot be read as file', function () {
 });
 
 test('command fails when config file is not readable', function () {
+    if (! function_exists('posix_getuid')) {
+        $this->markTestSkipped('POSIX permission checks are unavailable on this platform.');
+    }
+
     if (posix_getuid() === 0) {
         $this->markTestSkipped('Cannot test file permissions as root.');
     }
 
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     file_put_contents($configPath, $templateContent);
@@ -189,12 +192,16 @@ test('command fails when config file is not readable', function () {
 });
 
 test('command fails when config file cannot be written', function () {
+    if (! function_exists('posix_getuid')) {
+        $this->markTestSkipped('POSIX permission checks are unavailable on this platform.');
+    }
+
     if (posix_getuid() === 0) {
         $this->markTestSkipped('Cannot test file permissions as root.');
     }
 
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
+    $configPath      = config_path('solo.php');
+    $templatePath    = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     $content = str_replace(
