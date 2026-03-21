@@ -50,8 +50,7 @@
     "scripts": {
         "post-autoload-dump": [
             "@clear",
-            "@prepare",
-            "@composer run prepare"
+            "@prepare"
         ],
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
         "analyse": "vendor/bin/phpstan analyse",
