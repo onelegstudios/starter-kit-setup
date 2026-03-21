@@ -1,10 +1,8 @@
 <?php
-
 namespace Onelegstudios\StarterKitSetup\Commands;
 
-use Illuminate\Console\Command;
-
 use function Laravel\Prompts\confirm;
+use Illuminate\Console\Command;
 
 class UsingBuiltInServerCommand extends Command
 {
@@ -20,7 +18,7 @@ class UsingBuiltInServerCommand extends Command
     {
         $usingBuiltInServer = confirm(
             label: 'Are you using the built-in HTTP server?',
-            default: true
+        default: true
         );
 
         $configPath = config_path('solo.php');
@@ -37,9 +35,21 @@ class UsingBuiltInServerCommand extends Command
             return self::FAILURE;
         }
 
+        if (! is_readable($configPath)) {
+            $this->error('Config file solo.php could not be read.');
+
+            return self::FAILURE;
+        }
+
         $content = file_get_contents($configPath);
 
-        $search = $usingBuiltInServer ? self::SOLO_HTTP_LINE_COMMENTED : self::SOLO_HTTP_LINE;
+        if ($content === false) {
+            $this->error('Config file solo.php could not be read.');
+
+            return self::FAILURE;
+        }
+
+        $search  = $usingBuiltInServer ? self::SOLO_HTTP_LINE_COMMENTED : self::SOLO_HTTP_LINE;
         $replace = $usingBuiltInServer ? self::SOLO_HTTP_LINE : self::SOLO_HTTP_LINE_COMMENTED;
 
         $updated = str_replace($search, $replace, $content, $replacements);
