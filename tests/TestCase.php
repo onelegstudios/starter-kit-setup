@@ -47,10 +47,5 @@ class TestCase extends Orchestra
         mkdir($this->uniqueConfigPath, 0755, true);
         $app->useConfigPath($this->uniqueConfigPath);
 
-        /*
-         foreach (\Illuminate\Support\Facades\File::allFiles(__DIR__ . '/../database/migrations') as $migration) {
-            (include $migration->getRealPath())->up();
-         }
-         */
     }
 }
