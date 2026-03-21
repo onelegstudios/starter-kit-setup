@@ -1,13 +1,14 @@
 <?php
 
-use function Orchestra\Testbench\workbench_path;
 use Orchestra\Testbench\Concerns\WithWorkbench;
+
+use function Orchestra\Testbench\workbench_path;
 
 uses(WithWorkbench::class);
 
 test('setup command executes all setup commands', function () {
-    $configPath      = config_path('solo.php');
-    $templatePath    = workbench_path('config/solo.php');
+    $configPath = config_path('solo.php');
+    $templatePath = workbench_path('config/solo.php');
     $templateContent = file_get_contents($templatePath);
 
     $content = str_replace(
