@@ -1,5 +1,4 @@
 <?php
-
 namespace Onelegstudios\StarterKitSetup\Commands;
 
 use Illuminate\Console\Command;
@@ -52,7 +51,7 @@ class AddMailpitCommand extends Command
 
         $updated = str_replace(
             self::SOLO_INSERT_ANCHOR,
-            self::SOLO_INSERT_ANCHOR."\n".self::SOLO_MAILPIT_LINE,
+            self::SOLO_INSERT_ANCHOR . "\n" . self::SOLO_MAILPIT_LINE,
             $content,
             $replacements
         );
@@ -63,7 +62,19 @@ class AddMailpitCommand extends Command
             return self::FAILURE;
         }
 
-        file_put_contents($configPath, $updated);
+        try {
+            $bytesWritten = file_put_contents($configPath, $updated);
+        } catch (\ErrorException) {
+            $this->error('Unable to update solo.php: write failed.');
+
+            return self::FAILURE;
+        }
+
+        if ($bytesWritten === false) {
+            $this->error('Unable to update solo.php: write failed.');
+
+            return self::FAILURE;
+        }
 
         $this->info('Successfully added Mailpit command to solo.php configuration.');
 

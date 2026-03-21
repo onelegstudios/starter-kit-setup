@@ -1,10 +1,8 @@
 <?php
-
 namespace Onelegstudios\StarterKitSetup\Commands;
 
-use Illuminate\Console\Command;
-
 use function Laravel\Prompts\confirm;
+use Illuminate\Console\Command;
 
 class UsingBuiltInServerCommand extends Command
 {
@@ -20,7 +18,7 @@ class UsingBuiltInServerCommand extends Command
     {
         $usingBuiltInServer = confirm(
             label: 'Are you using the built-in HTTP server?',
-            default: true
+        default: true
         );
 
         $configPath = config_path('solo.php');
@@ -51,7 +49,7 @@ class UsingBuiltInServerCommand extends Command
             return self::FAILURE;
         }
 
-        $search = $usingBuiltInServer ? self::SOLO_HTTP_LINE_COMMENTED : self::SOLO_HTTP_LINE;
+        $search  = $usingBuiltInServer ? self::SOLO_HTTP_LINE_COMMENTED : self::SOLO_HTTP_LINE;
         $replace = $usingBuiltInServer ? self::SOLO_HTTP_LINE : self::SOLO_HTTP_LINE_COMMENTED;
 
         $updated = str_replace($search, $replace, $content, $replacements);
@@ -62,7 +60,19 @@ class UsingBuiltInServerCommand extends Command
             return self::SUCCESS;
         }
 
-        file_put_contents($configPath, $updated);
+        try {
+            $bytesWritten = file_put_contents($configPath, $updated);
+        } catch (\ErrorException) {
+            $this->error('Unable to update solo.php: write failed.');
+
+            return self::FAILURE;
+        }
+
+        if ($bytesWritten === false) {
+            $this->error('Unable to update solo.php: write failed.');
+
+            return self::FAILURE;
+        }
 
         $message = $usingBuiltInServer
             ? 'Successfully enabled HTTP server in solo.php configuration.'
