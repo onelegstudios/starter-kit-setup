@@ -57,3 +57,31 @@ test('setup command fails when first command fails', function () {
         }
     }
 });
+
+test('setup command fails when second command fails', function () {
+    $configPath = config_path('solo.php');
+    $templatePath = workbench_path('config/solo.php');
+    $templateContent = file_get_contents($templatePath);
+
+    $contentWithoutMailpitAnchor = str_replace(
+        '        // Lazy commands do not automatically start when Solo starts.',
+        '',
+        $templateContent
+    );
+
+    file_put_contents($configPath, $contentWithoutMailpitAnchor);
+
+    try {
+        $this->artisan('starter-kit-setup:setup')
+            ->expectsOutput('Running starter-kit-setup commands...')
+            ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
+            ->expectsOutput('Successfully enabled HTTP server in solo.php configuration.')
+            ->expectsOutput('Unable to update solo.php: insertion anchor not found.')
+            ->expectsOutput('The add-mailpit command failed.')
+            ->assertExitCode(1);
+    } finally {
+        if (file_exists($configPath)) {
+            unlink($configPath);
+        }
+    }
+});
