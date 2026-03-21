@@ -1,5 +1,4 @@
 <?php
-
 namespace Onelegstudios\StarterKitSetup\Commands;
 
 use Illuminate\Console\Command;
@@ -30,7 +29,19 @@ class AddMailpitCommand extends Command
             return self::FAILURE;
         }
 
+        if (! is_readable($configPath)) {
+            $this->error('Config file solo.php could not be read.');
+
+            return self::FAILURE;
+        }
+
         $content = file_get_contents($configPath);
+
+        if ($content === false) {
+            $this->error('Config file solo.php could not be read.');
+
+            return self::FAILURE;
+        }
 
         if (str_contains($content, self::SOLO_MAILPIT_LINE)) {
             $this->info('Mailpit command is already present in solo.php configuration.');
@@ -40,7 +51,7 @@ class AddMailpitCommand extends Command
 
         $updated = str_replace(
             self::SOLO_INSERT_ANCHOR,
-            self::SOLO_INSERT_ANCHOR."\n".self::SOLO_MAILPIT_LINE,
+            self::SOLO_INSERT_ANCHOR . "\n" . self::SOLO_MAILPIT_LINE,
             $content,
             $replacements
         );
