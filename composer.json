@@ -86,10 +86,7 @@
         "laravel": {
             "providers": [
                 "Onelegstudios\\StarterKitSetup\\StarterKitSetupServiceProvider"
-            ],
-            "aliases": {
-                "StarterKitSetup": "Onelegstudios\\StarterKitSetup\\Facades\\StarterKitSetup"
-            }
+            ]
         }
     },
     "minimum-stability": "dev",
