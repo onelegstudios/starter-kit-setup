@@ -2,7 +2,6 @@
 
 namespace Onelegstudios\StarterKitSetup\Tests;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Application;
 use Onelegstudios\StarterKitSetup\StarterKitSetupServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
@@ -10,15 +9,6 @@ use Orchestra\Testbench\TestCase as Orchestra;
 class TestCase extends Orchestra
 {
     private string $uniqueConfigPath = '';
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Onelegstudios\\StarterKitSetup\\Database\\Factories\\'.class_basename($modelName).'Factory'
-        );
-    }
 
     protected function tearDown(): void
     {
