@@ -1,11 +1,13 @@
 <?php
-
 namespace Onelegstudios\StarterKitSetup\Commands;
 
 use Illuminate\Console\Command;
+use Onelegstudios\StarterKitSetup\Concerns\InteractsWithSoloConfig;
 
 class AddMailpitCommand extends Command
 {
+    use InteractsWithSoloConfig;
+
     private const SOLO_MAILPIT_LINE = "        'Mailpit' => Command::from('mailpit')->lazy(),";
 
     /** Matches the Mailpit key regardless of surrounding whitespace. */
@@ -20,31 +22,9 @@ class AddMailpitCommand extends Command
 
     public function handle(): int
     {
-        $configPath = config_path('solo.php');
+        $content = $this->readSoloConfigContent();
 
-        if (! file_exists($configPath)) {
-            $this->error('Config file solo.php not found.');
-
-            return self::FAILURE;
-        }
-
-        if (! is_file($configPath)) {
-            $this->error('Unable to read config file solo.php.');
-
-            return self::FAILURE;
-        }
-
-        if (! is_readable($configPath)) {
-            $this->error('Config file solo.php could not be read.');
-
-            return self::FAILURE;
-        }
-
-        $content = file_get_contents($configPath);
-
-        if ($content === false) {
-            $this->error('Config file solo.php could not be read.');
-
+        if ($content === null) {
             return self::FAILURE;
         }
 
@@ -56,7 +36,7 @@ class AddMailpitCommand extends Command
 
         $updated = preg_replace(
             self::LAZY_ANCHOR_PATTERN,
-            '$1'."\n".self::SOLO_MAILPIT_LINE,
+            '$1' . "\n" . self::SOLO_MAILPIT_LINE,
             $content,
             1,
             $replacements
@@ -68,17 +48,7 @@ class AddMailpitCommand extends Command
             return self::FAILURE;
         }
 
-        try {
-            $bytesWritten = file_put_contents($configPath, $updated);
-        } catch (\ErrorException) {
-            $this->error('Unable to update solo.php: write failed.');
-
-            return self::FAILURE;
-        }
-
-        if ($bytesWritten === false) {
-            $this->error('Unable to update solo.php: write failed.');
-
+        if (! $this->writeSoloConfigContent($updated)) {
             return self::FAILURE;
         }
 
