@@ -2,14 +2,19 @@
 
 use Orchestra\Testbench\Concerns\WithWorkbench;
 
-use function Orchestra\Testbench\workbench_path;
-
 uses(WithWorkbench::class);
 
+beforeEach(function (): void {
+    starterKitResetSoloConfigPath();
+});
+
+afterEach(function (): void {
+    starterKitResetSoloConfigPath();
+});
+
 test('setup command executes all setup commands', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
-    $templateContent = file_get_contents($templatePath);
+    $configPath = starterKitSoloConfigPath();
+    $templateContent = starterKitSoloTemplateContent();
 
     $content = str_replace(
         "        // 'HTTP' => 'php artisan serve',",
@@ -17,51 +22,31 @@ test('setup command executes all setup commands', function () {
         $templateContent
     );
 
-    file_put_contents($configPath, $content);
+    starterKitWriteSoloConfig($content);
 
-    try {
-        $this->artisan('starter-kit-setup:setup')
-            ->expectsOutput('Running starter-kit-setup commands...')
-            ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
-            ->expectsOutput('Successfully disabled HTTP server in solo.php configuration.')
-            ->expectsOutput('Successfully added Mailpit command to solo.php configuration.')
-            ->expectsOutput('All starter-kit-setup commands completed successfully.')
-            ->assertExitCode(0);
+    $this->artisan('starter-kit-setup:setup')
+        ->expectsOutput('Running starter-kit-setup commands...')
+        ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
+        ->expectsOutput('Successfully disabled HTTP server in solo.php configuration.')
+        ->expectsOutput('Successfully added Mailpit command to solo.php configuration.')
+        ->expectsOutput('All starter-kit-setup commands completed successfully.')
+        ->assertExitCode(0);
 
-        $updatedContent = file_get_contents($configPath);
-        $this->assertStringContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
-        $this->assertStringContainsString("        'Mailpit' => Command::from('mailpit')->lazy(),", $updatedContent);
-    } finally {
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $updatedContent = file_get_contents($configPath);
+    $this->assertStringContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
+    $this->assertStringContainsString("        'Mailpit' => Command::from('mailpit')->lazy(),", $updatedContent);
 });
 
 test('setup command fails when first command fails', function () {
-    $configPath = config_path('solo.php');
-
-    if (file_exists($configPath)) {
-        unlink($configPath);
-    }
-
-    try {
-        $this->artisan('starter-kit-setup:setup')
-            ->expectsOutput('Running starter-kit-setup commands...')
-            ->expectsOutput('Config file solo.php not found.')
-            ->expectsOutput('The using-built-in-server command failed.')
-            ->assertExitCode(1);
-    } finally {
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $this->artisan('starter-kit-setup:setup')
+        ->expectsOutput('Running starter-kit-setup commands...')
+        ->expectsOutput('Config file solo.php not found.')
+        ->expectsOutput('The using-built-in-server command failed.')
+        ->assertExitCode(1);
 });
 
 test('setup command fails when second command fails', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
-    $templateContent = file_get_contents($templatePath);
+    $templateContent = starterKitSoloTemplateContent();
 
     $contentWithoutMailpitAnchor = str_replace(
         '        // Lazy commands do not automatically start when Solo starts.',
@@ -69,19 +54,13 @@ test('setup command fails when second command fails', function () {
         $templateContent
     );
 
-    file_put_contents($configPath, $contentWithoutMailpitAnchor);
+    starterKitWriteSoloConfig($contentWithoutMailpitAnchor);
 
-    try {
-        $this->artisan('starter-kit-setup:setup')
-            ->expectsOutput('Running starter-kit-setup commands...')
-            ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
-            ->expectsOutput('Successfully enabled HTTP server in solo.php configuration.')
-            ->expectsOutput('Unable to update solo.php: insertion anchor not found.')
-            ->expectsOutput('The add-mailpit command failed.')
-            ->assertExitCode(1);
-    } finally {
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $this->artisan('starter-kit-setup:setup')
+        ->expectsOutput('Running starter-kit-setup commands...')
+        ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
+        ->expectsOutput('Successfully enabled HTTP server in solo.php configuration.')
+        ->expectsOutput('Unable to update solo.php: insertion anchor not found.')
+        ->expectsOutput('The add-mailpit command failed.')
+        ->assertExitCode(1);
 });
