@@ -184,3 +184,47 @@ test('command fails when http entry is missing from solo config', function () {
         ->expectsOutput('HTTP command entry not found in solo.php configuration.')
         ->assertExitCode(1);
 });
+
+test('command uncomments customized http entry when using built-in server', function () {
+    $configPath = starterKitSoloConfigPath();
+    $templateContent = starterKitSoloTemplateContent();
+
+    $content = str_replace(
+        "        // 'HTTP' => 'php artisan serve',",
+        '        // "HTTP" => env("SOLO_HTTP_COMMAND", "php artisan serve --host=127.0.0.1 --port=8080"),',
+        $templateContent
+    );
+
+    starterKitWriteSoloConfig($content);
+
+    starterKitArtisan('starter-kit-setup:using-built-in-server')
+        ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
+        ->expectsOutput('Successfully enabled HTTP server in solo.php configuration.')
+        ->assertExitCode(0);
+
+    $updatedContent = starterKitReadFile($configPath);
+    $this->assertStringContainsString('        "HTTP" => env("SOLO_HTTP_COMMAND", "php artisan serve --host=127.0.0.1 --port=8080"),', $updatedContent);
+    $this->assertStringNotContainsString('        // "HTTP" => env("SOLO_HTTP_COMMAND", "php artisan serve --host=127.0.0.1 --port=8080"),', $updatedContent);
+});
+
+test('command comments customized http entry when not using built-in server', function () {
+    $configPath = starterKitSoloConfigPath();
+    $templateContent = starterKitSoloTemplateContent();
+
+    $content = str_replace(
+        "        // 'HTTP' => 'php artisan serve',",
+        '        "HTTP" => env("SOLO_HTTP_COMMAND", "php artisan serve --host=127.0.0.1 --port=8080"),',
+        $templateContent
+    );
+
+    starterKitWriteSoloConfig($content);
+
+    starterKitArtisan('starter-kit-setup:using-built-in-server')
+        ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
+        ->expectsOutput('Successfully disabled HTTP server in solo.php configuration.')
+        ->assertExitCode(0);
+
+    $updatedContent = starterKitReadFile($configPath);
+    $this->assertStringContainsString('        // "HTTP" => env("SOLO_HTTP_COMMAND", "php artisan serve --host=127.0.0.1 --port=8080"),', $updatedContent);
+    $this->assertStringNotContainsString('        "HTTP" => env("SOLO_HTTP_COMMAND", "php artisan serve --host=127.0.0.1 --port=8080"),', $updatedContent);
+});

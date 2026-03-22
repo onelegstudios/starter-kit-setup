@@ -11,10 +11,8 @@ class UsingBuiltInServerCommand extends Command
 {
     use InteractsWithSoloConfig;
 
-    /** Matches the HTTP line whether commented or not, tolerant of whitespace variations. */
-    private const HTTP_UNCOMMENTED_PATTERN = '/^(\h*)\'HTTP\'\h*=>\h*\'php artisan serve\',/m';
-
-    private const HTTP_COMMENTED_PATTERN = '/^(\h*)\/\/\h*\'HTTP\'\h*=>\h*\'php artisan serve\',/m';
+    /** Matches the HTTP line whether commented or not, tolerant of quote, spacing, and value variations. */
+    private const HTTP_ENTRY_PATTERN = '/^(\h*)(?:(\/\/)\h*)?([\'\"])HTTP\3(\h*=>\h*)(.+,)\h*$/m';
 
     protected $signature = 'starter-kit-setup:using-built-in-server';
 
@@ -34,21 +32,21 @@ class UsingBuiltInServerCommand extends Command
         );
 
         if ($usingBuiltInServer) {
-            if (preg_match(self::HTTP_UNCOMMENTED_PATTERN, $content)) {
+            if (preg_match(self::HTTP_ENTRY_PATTERN, $content, $matches) === 1 && $matches[2] === '') {
                 $this->info('Great! No changes needed.');
 
                 return self::SUCCESS;
             }
 
-            $updated = preg_replace(self::HTTP_COMMENTED_PATTERN, '$1'."'HTTP' => 'php artisan serve',", $content, -1, $replacements);
+            $updated = preg_replace(self::HTTP_ENTRY_PATTERN, '$1$3HTTP$3$4$5', $content, 1, $replacements);
         } else {
-            if (preg_match(self::HTTP_COMMENTED_PATTERN, $content)) {
+            if (preg_match(self::HTTP_ENTRY_PATTERN, $content, $matches) === 1 && $matches[2] !== '') {
                 $this->info('Great! No changes needed.');
 
                 return self::SUCCESS;
             }
 
-            $updated = preg_replace(self::HTTP_UNCOMMENTED_PATTERN, '$1'."// 'HTTP' => 'php artisan serve',", $content, -1, $replacements);
+            $updated = preg_replace(self::HTTP_ENTRY_PATTERN, '$1// $3HTTP$3$4$5', $content, 1, $replacements);
         }
 
         if ($replacements === 0 || $updated === null) {
