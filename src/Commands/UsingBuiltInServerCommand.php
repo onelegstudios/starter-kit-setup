@@ -1,9 +1,11 @@
 <?php
+
 namespace Onelegstudios\StarterKitSetup\Commands;
 
-use function Laravel\Prompts\confirm;
 use Illuminate\Console\Command;
 use Onelegstudios\StarterKitSetup\Concerns\InteractsWithSoloConfig;
+
+use function Laravel\Prompts\confirm;
 
 class UsingBuiltInServerCommand extends Command
 {
@@ -28,7 +30,7 @@ class UsingBuiltInServerCommand extends Command
 
         $usingBuiltInServer = confirm(
             label: 'Are you using the built-in HTTP server?',
-        default: true
+            default: true
         );
 
         if ($usingBuiltInServer) {
@@ -38,7 +40,7 @@ class UsingBuiltInServerCommand extends Command
                 return self::SUCCESS;
             }
 
-            $updated = preg_replace(self::HTTP_COMMENTED_PATTERN, '$1' . "'HTTP' => 'php artisan serve',", $content, -1, $replacements);
+            $updated = preg_replace(self::HTTP_COMMENTED_PATTERN, '$1'."'HTTP' => 'php artisan serve',", $content, -1, $replacements);
         } else {
             if (preg_match(self::HTTP_COMMENTED_PATTERN, $content)) {
                 $this->info('Great! No changes needed.');
@@ -46,7 +48,7 @@ class UsingBuiltInServerCommand extends Command
                 return self::SUCCESS;
             }
 
-            $updated = preg_replace(self::HTTP_UNCOMMENTED_PATTERN, '$1' . "// 'HTTP' => 'php artisan serve',", $content, -1, $replacements);
+            $updated = preg_replace(self::HTTP_UNCOMMENTED_PATTERN, '$1'."// 'HTTP' => 'php artisan serve',", $content, -1, $replacements);
         }
 
         if ($replacements === 0 || $updated === null) {
