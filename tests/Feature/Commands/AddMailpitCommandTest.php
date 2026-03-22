@@ -2,8 +2,6 @@
 
 use Orchestra\Testbench\Concerns\WithWorkbench;
 
-use function Pest\Laravel\artisan;
-
 uses(WithWorkbench::class);
 
 beforeEach(function (): void {
@@ -18,11 +16,11 @@ test('command adds mailpit line to solo config', function () {
     $configPath = starterKitSoloConfigPath();
     starterKitWriteSoloConfig(starterKitSoloTemplateContent());
 
-    artisan('starter-kit-setup:add-mailpit')
+    starterKitArtisan('starter-kit-setup:add-mailpit')
         ->expectsOutput('Successfully added Mailpit command to solo.php configuration.')
         ->assertExitCode(0);
 
-    $updatedContent = file_get_contents($configPath);
+    $updatedContent = starterKitReadFile($configPath);
     $this->assertStringContainsString("        'Mailpit' => Command::from('mailpit')->lazy(),", $updatedContent);
     $this->assertSame(1, substr_count($updatedContent, "        'Mailpit' => Command::from('mailpit')->lazy(),"));
 });
@@ -38,16 +36,16 @@ test('command is idempotent when mailpit line already exists', function () {
     );
     starterKitWriteSoloConfig($contentWithMailpit);
 
-    artisan('starter-kit-setup:add-mailpit')
+    starterKitArtisan('starter-kit-setup:add-mailpit')
         ->expectsOutput('Mailpit command is already present in solo.php configuration.')
         ->assertExitCode(0);
 
-    $updatedContent = file_get_contents($configPath);
+    $updatedContent = starterKitReadFile($configPath);
     $this->assertSame(1, substr_count($updatedContent, "        'Mailpit' => Command::from('mailpit')->lazy(),"));
 });
 
 test('command fails when config file not found', function () {
-    artisan('starter-kit-setup:add-mailpit')
+    starterKitArtisan('starter-kit-setup:add-mailpit')
         ->expectsOutput('Config file solo.php not found.')
         ->assertExitCode(1);
 });
@@ -56,7 +54,7 @@ test('command fails when config path cannot be read as file', function () {
     $configPath = starterKitSoloConfigPath();
     mkdir($configPath);
 
-    artisan('starter-kit-setup:add-mailpit')
+    starterKitArtisan('starter-kit-setup:add-mailpit')
         ->expectsOutput('Unable to read config file solo.php.')
         ->assertExitCode(1);
 });
@@ -74,7 +72,7 @@ test('command fails when config file is not readable', function () {
     starterKitWriteSoloConfig(starterKitSoloTemplateContent());
     chmod($configPath, 0000);
 
-    artisan('starter-kit-setup:add-mailpit')
+    starterKitArtisan('starter-kit-setup:add-mailpit')
         ->expectsOutput('Config file solo.php could not be read.')
         ->assertExitCode(1);
 });
@@ -89,7 +87,7 @@ test('command fails when insertion anchor is not found', function () {
     );
     starterKitWriteSoloConfig($contentWithoutAnchor);
 
-    artisan('starter-kit-setup:add-mailpit')
+    starterKitArtisan('starter-kit-setup:add-mailpit')
         ->expectsOutput('Unable to update solo.php: insertion anchor not found.')
         ->assertExitCode(1);
 });
@@ -107,7 +105,7 @@ test('command fails when config file cannot be written', function () {
     starterKitWriteSoloConfig(starterKitSoloTemplateContent());
     chmod($configPath, 0444);
 
-    artisan('starter-kit-setup:add-mailpit')
+    starterKitArtisan('starter-kit-setup:add-mailpit')
         ->expectsOutput('Unable to update solo.php: write failed.')
         ->assertExitCode(1);
 });

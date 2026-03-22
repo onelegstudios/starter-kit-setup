@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Testing\PendingCommand;
 use Onelegstudios\StarterKitSetup\Tests\TestCase;
 
 use function Orchestra\Testbench\workbench_path;
@@ -13,17 +14,37 @@ if (! function_exists('starterKitSoloConfigPath')) {
     }
 }
 
+if (! function_exists('starterKitArtisan')) {
+    /** @param array<string, mixed> $parameters */
+    function starterKitArtisan(string $command, array $parameters = []): PendingCommand
+    {
+        $result = \Pest\Laravel\artisan($command, $parameters);
+
+        if (! $result instanceof PendingCommand) {
+            throw new RuntimeException('artisan() did not return a PendingCommand instance.');
+        }
+
+        return $result;
+    }
+}
+
+if (! function_exists('starterKitReadFile')) {
+    function starterKitReadFile(string $path): string
+    {
+        $content = file_get_contents($path);
+
+        if ($content === false) {
+            throw new RuntimeException("Unable to read file: {$path}");
+        }
+
+        return $content;
+    }
+}
+
 if (! function_exists('starterKitSoloTemplateContent')) {
     function starterKitSoloTemplateContent(): string
     {
-        $templatePath = workbench_path('config/solo.php');
-        $templateContent = file_get_contents($templatePath);
-
-        if ($templateContent === false) {
-            throw new RuntimeException('Unable to read workbench solo.php template.');
-        }
-
-        return $templateContent;
+        return starterKitReadFile(workbench_path('config/solo.php'));
     }
 }
 
