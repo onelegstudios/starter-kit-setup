@@ -2,6 +2,8 @@
 
 use Orchestra\Testbench\Concerns\WithWorkbench;
 
+use function Pest\Laravel\artisan;
+
 uses(WithWorkbench::class);
 
 beforeEach(function (): void {
@@ -25,7 +27,7 @@ test('command comments http line when not using built-in server', function () {
 
     starterKitWriteSoloConfig($content);
 
-    $this->artisan('starter-kit-setup:using-built-in-server')
+    artisan('starter-kit-setup:using-built-in-server')
         ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
         ->expectsOutput('Successfully disabled HTTP server in solo.php configuration.')
         ->assertExitCode(0);
@@ -47,7 +49,7 @@ test('command shows no changes needed when not using built-in server and already
     );
     starterKitWriteSoloConfig($content);
 
-    $this->artisan('starter-kit-setup:using-built-in-server')
+    artisan('starter-kit-setup:using-built-in-server')
         ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
         ->expectsOutput('Great! No changes needed.')
         ->assertExitCode(0);
@@ -68,7 +70,7 @@ test('command uncomments http line when using built-in server', function () {
     );
     starterKitWriteSoloConfig($content);
 
-    $this->artisan('starter-kit-setup:using-built-in-server')
+    artisan('starter-kit-setup:using-built-in-server')
         ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
         ->expectsOutput('Successfully enabled HTTP server in solo.php configuration.')
         ->assertExitCode(0);
@@ -90,7 +92,7 @@ test('command shows no changes needed when using built-in server and already unc
     );
     starterKitWriteSoloConfig($content);
 
-    $this->artisan('starter-kit-setup:using-built-in-server')
+    artisan('starter-kit-setup:using-built-in-server')
         ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
         ->expectsOutput('Great! No changes needed.')
         ->assertExitCode(0);
@@ -102,7 +104,7 @@ test('command shows no changes needed when using built-in server and already unc
 });
 
 test('command fails when config file not found', function () {
-    $this->artisan('starter-kit-setup:using-built-in-server')
+    artisan('starter-kit-setup:using-built-in-server')
         ->expectsOutput('Config file solo.php not found.')
         ->assertExitCode(1);
 });
@@ -111,7 +113,7 @@ test('command fails when config path cannot be read as file', function () {
     $configPath = starterKitSoloConfigPath();
     mkdir($configPath);
 
-    $this->artisan('starter-kit-setup:using-built-in-server')
+    artisan('starter-kit-setup:using-built-in-server')
         ->expectsOutput('Unable to read config file solo.php.')
         ->assertExitCode(1);
 });
@@ -129,7 +131,7 @@ test('command fails when config file is not readable', function () {
     starterKitWriteSoloConfig(starterKitSoloTemplateContent());
     chmod($configPath, 0000);
 
-    $this->artisan('starter-kit-setup:using-built-in-server')
+    artisan('starter-kit-setup:using-built-in-server')
         ->expectsOutput('Config file solo.php could not be read.')
         ->assertExitCode(1);
 });
@@ -155,7 +157,7 @@ test('command fails when config file cannot be written', function () {
     starterKitWriteSoloConfig($content);
     chmod($configPath, 0444);
 
-    $this->artisan('starter-kit-setup:using-built-in-server')
+    artisan('starter-kit-setup:using-built-in-server')
         ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
         ->expectsOutput('Unable to update solo.php: write failed.')
         ->assertExitCode(1);
