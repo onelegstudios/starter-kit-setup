@@ -2,6 +2,8 @@
 
 use Orchestra\Testbench\Concerns\WithWorkbench;
 
+use function Pest\Laravel\artisan;
+
 uses(WithWorkbench::class);
 
 beforeEach(function (): void {
@@ -24,7 +26,7 @@ test('setup command executes all setup commands', function () {
 
     starterKitWriteSoloConfig($content);
 
-    $this->artisan('starter-kit-setup:setup')
+    artisan('starter-kit-setup:setup')
         ->expectsOutput('Running starter-kit-setup commands...')
         ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
         ->expectsOutput('Successfully disabled HTTP server in solo.php configuration.')
@@ -38,7 +40,7 @@ test('setup command executes all setup commands', function () {
 });
 
 test('setup command fails when first command fails', function () {
-    $this->artisan('starter-kit-setup:setup')
+    artisan('starter-kit-setup:setup')
         ->expectsOutput('Running starter-kit-setup commands...')
         ->expectsOutput('Config file solo.php not found.')
         ->expectsOutput('The using-built-in-server command failed.')
@@ -56,7 +58,7 @@ test('setup command fails when second command fails', function () {
 
     starterKitWriteSoloConfig($contentWithoutMailpitAnchor);
 
-    $this->artisan('starter-kit-setup:setup')
+    artisan('starter-kit-setup:setup')
         ->expectsOutput('Running starter-kit-setup commands...')
         ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
         ->expectsOutput('Successfully enabled HTTP server in solo.php configuration.')

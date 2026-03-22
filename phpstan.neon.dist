@@ -1,10 +1,17 @@
 includes:
     - phpstan-baseline.neon
 
+
 parameters:
     level: 6
     paths:
         - src
+        - tests
     tmpDir: build/phpstan
     checkOctaneCompatibility: true
     checkModelProperties: true
+    ignoreErrors:
+        -
+            message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall::expect\(\)\.$#'
+            path: tests/ArchTest.php
+    
