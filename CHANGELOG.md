@@ -18,7 +18,7 @@ Minor refactoring and code quality improvements
 
 **Full Changelog**: https://github.com/onelegstudios/starter-kit-setup/compare/v2.0.0...v2.0.1
 
-## v2,0,0 - 2026-03-19
+## v2.0.0 - 2026-03-19
 
 ### What's Changed
 
