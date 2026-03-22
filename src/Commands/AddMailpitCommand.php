@@ -43,7 +43,7 @@ class AddMailpitCommand extends Command
             $replacements
         );
 
-        if ($replacements === 0) {
+        if ($replacements === 0 || $updated === null) {
             $this->error('Unable to update solo.php: insertion anchor not found.');
 
             return self::FAILURE;
