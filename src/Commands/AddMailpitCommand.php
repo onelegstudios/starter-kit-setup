@@ -1,5 +1,4 @@
 <?php
-
 namespace Onelegstudios\StarterKitSetup\Commands;
 
 use Illuminate\Console\Command;
@@ -8,7 +7,11 @@ class AddMailpitCommand extends Command
 {
     private const SOLO_MAILPIT_LINE = "        'Mailpit' => Command::from('mailpit')->lazy(),";
 
-    private const SOLO_INSERT_ANCHOR = '        // Lazy commands do not automatically start when Solo starts.';
+    /** Matches the Mailpit key regardless of surrounding whitespace. */
+    private const MAILPIT_PRESENT_PATTERN = '/^\h*\'Mailpit\'\h*=>/m';
+
+    /** Matches the lazy commands anchor comment, tolerant of whitespace and wording variations. */
+    private const LAZY_ANCHOR_PATTERN = '/^(\h*\/\/\h*Lazy commands do not automatically start[^\n]*)/m';
 
     protected $signature = 'starter-kit-setup:add-mailpit';
 
@@ -44,16 +47,17 @@ class AddMailpitCommand extends Command
             return self::FAILURE;
         }
 
-        if (str_contains($content, self::SOLO_MAILPIT_LINE)) {
+        if (preg_match(self::MAILPIT_PRESENT_PATTERN, $content)) {
             $this->info('Mailpit command is already present in solo.php configuration.');
 
             return self::SUCCESS;
         }
 
-        $updated = str_replace(
-            self::SOLO_INSERT_ANCHOR,
-            self::SOLO_INSERT_ANCHOR."\n".self::SOLO_MAILPIT_LINE,
+        $updated = preg_replace(
+            self::LAZY_ANCHOR_PATTERN,
+            '$1' . "\n" . self::SOLO_MAILPIT_LINE,
             $content,
+            1,
             $replacements
         );
 

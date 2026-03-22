@@ -1,16 +1,15 @@
 <?php
-
 namespace Onelegstudios\StarterKitSetup\Commands;
 
-use Illuminate\Console\Command;
-
 use function Laravel\Prompts\confirm;
+use Illuminate\Console\Command;
 
 class UsingBuiltInServerCommand extends Command
 {
-    private const SOLO_HTTP_LINE = "        'HTTP' => 'php artisan serve',";
+    /** Matches the HTTP line whether commented or not, tolerant of whitespace variations. */
+    private const HTTP_UNCOMMENTED_PATTERN = '/^(\h*)\'HTTP\'\h*=>\h*\'php artisan serve\',/m';
 
-    private const SOLO_HTTP_LINE_COMMENTED = "        // 'HTTP' => 'php artisan serve',";
+    private const HTTP_COMMENTED_PATTERN = '/^(\h*)\/\/\h*\'HTTP\'\h*=>\h*\'php artisan serve\',/m';
 
     protected $signature = 'starter-kit-setup:using-built-in-server';
 
@@ -48,15 +47,28 @@ class UsingBuiltInServerCommand extends Command
 
         $usingBuiltInServer = confirm(
             label: 'Are you using the built-in HTTP server?',
-            default: true
+        default: true
         );
 
-        $search = $usingBuiltInServer ? self::SOLO_HTTP_LINE_COMMENTED : self::SOLO_HTTP_LINE;
-        $replace = $usingBuiltInServer ? self::SOLO_HTTP_LINE : self::SOLO_HTTP_LINE_COMMENTED;
+        if ($usingBuiltInServer) {
+            if (preg_match(self::HTTP_UNCOMMENTED_PATTERN, $content)) {
+                $this->info('Great! No changes needed.');
 
-        $updated = str_replace($search, $replace, $content, $replacements);
+                return self::SUCCESS;
+            }
 
-        if ($replacements === 0) {
+            $updated = preg_replace(self::HTTP_COMMENTED_PATTERN, '$1' . "'HTTP' => 'php artisan serve',", $content, -1, $replacements);
+        } else {
+            if (preg_match(self::HTTP_COMMENTED_PATTERN, $content)) {
+                $this->info('Great! No changes needed.');
+
+                return self::SUCCESS;
+            }
+
+            $updated = preg_replace(self::HTTP_UNCOMMENTED_PATTERN, '$1' . "// 'HTTP' => 'php artisan serve',", $content, -1, $replacements);
+        }
+
+        if ($replacements === 0 || $updated === null) {
             $this->info('Great! No changes needed.');
 
             return self::SUCCESS;
