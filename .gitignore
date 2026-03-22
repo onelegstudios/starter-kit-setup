@@ -44,6 +44,7 @@ testbench.yaml
 /AGENTS.md
 /docs
 /coverage
+/.ai
 
 # OS generated files
 .DS_Store
