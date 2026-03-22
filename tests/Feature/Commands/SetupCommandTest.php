@@ -45,7 +45,7 @@ test('setup command fails when first command fails', function () {
         ->assertExitCode(1);
 });
 
-test('setup command fails when second command fails', function () {
+test('setup command still succeeds when mailpit anchor comment is missing', function () {
     $templateContent = starterKitSoloTemplateContent();
 
     $contentWithoutMailpitAnchor = str_replace(
@@ -60,12 +60,12 @@ test('setup command fails when second command fails', function () {
         ->expectsOutput('Running starter-kit-setup commands...')
         ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
         ->expectsOutput('Successfully enabled HTTP server in solo.php configuration.')
-        ->expectsOutput('Unable to update solo.php: insertion anchor not found.')
-        ->expectsOutput('The add-mailpit command failed.')
-        ->assertExitCode(1);
+        ->expectsOutput('Successfully added Mailpit command to solo.php configuration.')
+        ->expectsOutput('All starter-kit-setup commands completed successfully.')
+        ->assertExitCode(0);
 
     $updatedContent = starterKitReadFile(starterKitSoloConfigPath());
-    expect($updatedContent)->toBe($contentWithoutMailpitAnchor);
+    $this->assertStringContainsString("        'Mailpit' => Command::from('mailpit')->lazy(),", $updatedContent);
 });
 
 test('solo config helper throws when file cannot be written', function () {

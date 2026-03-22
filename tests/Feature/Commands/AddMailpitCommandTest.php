@@ -77,7 +77,7 @@ test('command fails when config file is not readable', function () {
         ->assertExitCode(1);
 });
 
-test('command fails when insertion anchor is not found', function () {
+test('command falls back to commands array when insertion anchor is not found', function () {
     $templateContent = starterKitSoloTemplateContent();
 
     $contentWithoutAnchor = str_replace(
@@ -86,6 +86,32 @@ test('command fails when insertion anchor is not found', function () {
         $templateContent
     );
     starterKitWriteSoloConfig($contentWithoutAnchor);
+
+    starterKitArtisan('starter-kit-setup:add-mailpit')
+        ->expectsOutput('Successfully added Mailpit command to solo.php configuration.')
+        ->assertExitCode(0);
+
+    $updatedContent = starterKitReadFile(starterKitSoloConfigPath());
+    $this->assertStringContainsString("        'Mailpit' => Command::from('mailpit')->lazy(),", $updatedContent);
+    $this->assertSame(1, substr_count($updatedContent, "        'Mailpit' => Command::from('mailpit')->lazy(),"));
+});
+
+test('command fails when insertion anchor and commands array are both unavailable', function () {
+    $templateContent = starterKitSoloTemplateContent();
+
+    $contentWithoutAnchor = str_replace(
+        '        // Lazy commands do not automatically start when Solo starts.',
+        '',
+        $templateContent
+    );
+
+    $contentWithoutCommandsArray = str_replace(
+        "    'commands' => [",
+        "    'starter_commands' => [",
+        $contentWithoutAnchor
+    );
+
+    starterKitWriteSoloConfig($contentWithoutCommandsArray);
 
     starterKitArtisan('starter-kit-setup:add-mailpit')
         ->expectsOutput('Unable to update solo.php: insertion anchor not found.')
