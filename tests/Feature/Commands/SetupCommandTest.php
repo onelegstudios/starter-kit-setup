@@ -63,4 +63,7 @@ test('setup command fails when second command fails', function () {
         ->expectsOutput('Unable to update solo.php: insertion anchor not found.')
         ->expectsOutput('The add-mailpit command failed.')
         ->assertExitCode(1);
+
+    $updatedContent = starterKitReadFile(starterKitSoloConfigPath());
+    expect($updatedContent)->toBe($contentWithoutMailpitAnchor);
 });
