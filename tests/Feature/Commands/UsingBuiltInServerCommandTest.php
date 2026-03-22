@@ -2,14 +2,19 @@
 
 use Orchestra\Testbench\Concerns\WithWorkbench;
 
-use function Orchestra\Testbench\workbench_path;
-
 uses(WithWorkbench::class);
 
+beforeEach(function (): void {
+    starterKitResetSoloConfigPath();
+});
+
+afterEach(function (): void {
+    starterKitResetSoloConfigPath();
+});
+
 test('command comments http line when not using built-in server', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
-    $templateContent = file_get_contents($templatePath);
+    $configPath = starterKitSoloConfigPath();
+    $templateContent = starterKitSoloTemplateContent();
 
     // Ensure the line is uncommented before the test
     $content = str_replace(
@@ -18,28 +23,21 @@ test('command comments http line when not using built-in server', function () {
         $templateContent
     );
 
-    file_put_contents($configPath, $content);
+    starterKitWriteSoloConfig($content);
 
-    try {
-        $this->artisan('starter-kit-setup:using-built-in-server')
-            ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
-            ->expectsOutput('Successfully disabled HTTP server in solo.php configuration.')
-            ->assertExitCode(0);
+    $this->artisan('starter-kit-setup:using-built-in-server')
+        ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
+        ->expectsOutput('Successfully disabled HTTP server in solo.php configuration.')
+        ->assertExitCode(0);
 
-        $updatedContent = file_get_contents($configPath);
-        $this->assertStringContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
-        $this->assertStringNotContainsString("        'HTTP' => 'php artisan serve',", $updatedContent);
-    } finally {
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $updatedContent = file_get_contents($configPath);
+    $this->assertStringContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
+    $this->assertStringNotContainsString("        'HTTP' => 'php artisan serve',", $updatedContent);
 });
 
 test('command shows no changes needed when not using built-in server and already commented', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
-    $templateContent = file_get_contents($templatePath);
+    $configPath = starterKitSoloConfigPath();
+    $templateContent = starterKitSoloTemplateContent();
 
     // Ensure the line is commented
     $content = str_replace(
@@ -47,27 +45,20 @@ test('command shows no changes needed when not using built-in server and already
         "        // 'HTTP' => 'php artisan serve',",
         $templateContent
     );
-    file_put_contents($configPath, $content);
+    starterKitWriteSoloConfig($content);
 
-    try {
-        $this->artisan('starter-kit-setup:using-built-in-server')
-            ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
-            ->expectsOutput('Great! No changes needed.')
-            ->assertExitCode(0);
+    $this->artisan('starter-kit-setup:using-built-in-server')
+        ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
+        ->expectsOutput('Great! No changes needed.')
+        ->assertExitCode(0);
 
-        $updatedContent = file_get_contents($configPath);
-        $this->assertStringContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
-    } finally {
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $updatedContent = file_get_contents($configPath);
+    $this->assertStringContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
 });
 
 test('command uncomments http line when using built-in server', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
-    $templateContent = file_get_contents($templatePath);
+    $configPath = starterKitSoloConfigPath();
+    $templateContent = starterKitSoloTemplateContent();
 
     // Ensure the line is commented
     $content = str_replace(
@@ -75,28 +66,21 @@ test('command uncomments http line when using built-in server', function () {
         "        // 'HTTP' => 'php artisan serve',",
         $templateContent
     );
-    file_put_contents($configPath, $content);
+    starterKitWriteSoloConfig($content);
 
-    try {
-        $this->artisan('starter-kit-setup:using-built-in-server')
-            ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
-            ->expectsOutput('Successfully enabled HTTP server in solo.php configuration.')
-            ->assertExitCode(0);
+    $this->artisan('starter-kit-setup:using-built-in-server')
+        ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
+        ->expectsOutput('Successfully enabled HTTP server in solo.php configuration.')
+        ->assertExitCode(0);
 
-        $updatedContent = file_get_contents($configPath);
-        $this->assertStringContainsString("        'HTTP' => 'php artisan serve',", $updatedContent);
-        $this->assertStringNotContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
-    } finally {
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $updatedContent = file_get_contents($configPath);
+    $this->assertStringContainsString("        'HTTP' => 'php artisan serve',", $updatedContent);
+    $this->assertStringNotContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
 });
 
 test('command shows no changes needed when using built-in server and already uncommented', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
-    $templateContent = file_get_contents($templatePath);
+    $configPath = starterKitSoloConfigPath();
+    $templateContent = starterKitSoloTemplateContent();
 
     // Ensure the line is uncommented
     $content = str_replace(
@@ -104,61 +88,32 @@ test('command shows no changes needed when using built-in server and already unc
         "        'HTTP' => 'php artisan serve',",
         $templateContent
     );
-    file_put_contents($configPath, $content);
+    starterKitWriteSoloConfig($content);
 
-    try {
-        $this->artisan('starter-kit-setup:using-built-in-server')
-            ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
-            ->expectsOutput('Great! No changes needed.')
-            ->assertExitCode(0);
+    $this->artisan('starter-kit-setup:using-built-in-server')
+        ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
+        ->expectsOutput('Great! No changes needed.')
+        ->assertExitCode(0);
 
-        // Verify nothing changed
-        $updatedContent = file_get_contents($configPath);
-        $this->assertStringContainsString("        'HTTP' => 'php artisan serve',", $updatedContent);
-        $this->assertStringNotContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
-    } finally {
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    // Verify nothing changed
+    $updatedContent = file_get_contents($configPath);
+    $this->assertStringContainsString("        'HTTP' => 'php artisan serve',", $updatedContent);
+    $this->assertStringNotContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
 });
 
 test('command fails when config file not found', function () {
-    $configPath = config_path('solo.php');
-
-    if (file_exists($configPath)) {
-        unlink($configPath);
-    }
-
-    try {
-        $this->artisan('starter-kit-setup:using-built-in-server')
-            ->expectsOutput('Config file solo.php not found.')
-            ->assertExitCode(1);
-    } finally {
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $this->artisan('starter-kit-setup:using-built-in-server')
+        ->expectsOutput('Config file solo.php not found.')
+        ->assertExitCode(1);
 });
 
 test('command fails when config path cannot be read as file', function () {
-    $configPath = config_path('solo.php');
-
-    if (file_exists($configPath)) {
-        unlink($configPath);
-    }
-
+    $configPath = starterKitSoloConfigPath();
     mkdir($configPath);
 
-    try {
-        $this->artisan('starter-kit-setup:using-built-in-server')
-            ->expectsOutput('Unable to read config file solo.php.')
-            ->assertExitCode(1);
-    } finally {
-        if (is_dir($configPath)) {
-            rmdir($configPath);
-        }
-    }
+    $this->artisan('starter-kit-setup:using-built-in-server')
+        ->expectsOutput('Unable to read config file solo.php.')
+        ->assertExitCode(1);
 });
 
 test('command fails when config file is not readable', function () {
@@ -170,23 +125,13 @@ test('command fails when config file is not readable', function () {
         $this->markTestSkipped('Cannot test file permissions as root.');
     }
 
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
-    $templateContent = file_get_contents($templatePath);
-
-    file_put_contents($configPath, $templateContent);
+    $configPath = starterKitSoloConfigPath();
+    starterKitWriteSoloConfig(starterKitSoloTemplateContent());
     chmod($configPath, 0000);
 
-    try {
-        $this->artisan('starter-kit-setup:using-built-in-server')
-            ->expectsOutput('Config file solo.php could not be read.')
-            ->assertExitCode(1);
-    } finally {
-        chmod($configPath, 0644);
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $this->artisan('starter-kit-setup:using-built-in-server')
+        ->expectsOutput('Config file solo.php could not be read.')
+        ->assertExitCode(1);
 });
 
 test('command fails when config file cannot be written', function () {
@@ -198,9 +143,8 @@ test('command fails when config file cannot be written', function () {
         $this->markTestSkipped('Cannot test file permissions as root.');
     }
 
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
-    $templateContent = file_get_contents($templatePath);
+    $configPath = starterKitSoloConfigPath();
+    $templateContent = starterKitSoloTemplateContent();
 
     $content = str_replace(
         "        'HTTP' => 'php artisan serve',",
@@ -208,18 +152,11 @@ test('command fails when config file cannot be written', function () {
         $templateContent
     );
 
-    file_put_contents($configPath, $content);
+    starterKitWriteSoloConfig($content);
     chmod($configPath, 0444);
 
-    try {
-        $this->artisan('starter-kit-setup:using-built-in-server')
-            ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
-            ->expectsOutput('Unable to update solo.php: write failed.')
-            ->assertExitCode(1);
-    } finally {
-        chmod($configPath, 0644);
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $this->artisan('starter-kit-setup:using-built-in-server')
+        ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
+        ->expectsOutput('Unable to update solo.php: write failed.')
+        ->assertExitCode(1);
 });

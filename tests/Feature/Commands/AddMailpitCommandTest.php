@@ -2,94 +2,61 @@
 
 use Orchestra\Testbench\Concerns\WithWorkbench;
 
-use function Orchestra\Testbench\workbench_path;
-
 uses(WithWorkbench::class);
 
+beforeEach(function (): void {
+    starterKitResetSoloConfigPath();
+});
+
+afterEach(function (): void {
+    starterKitResetSoloConfigPath();
+});
+
 test('command adds mailpit line to solo config', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
-    $templateContent = file_get_contents($templatePath);
+    $configPath = starterKitSoloConfigPath();
+    starterKitWriteSoloConfig(starterKitSoloTemplateContent());
 
-    file_put_contents($configPath, $templateContent);
+    $this->artisan('starter-kit-setup:add-mailpit')
+        ->expectsOutput('Successfully added Mailpit command to solo.php configuration.')
+        ->assertExitCode(0);
 
-    try {
-        $this->artisan('starter-kit-setup:add-mailpit')
-            ->expectsOutput('Successfully added Mailpit command to solo.php configuration.')
-            ->assertExitCode(0);
-
-        $updatedContent = file_get_contents($configPath);
-        $this->assertStringContainsString("        'Mailpit' => Command::from('mailpit')->lazy(),", $updatedContent);
-        $this->assertSame(1, substr_count($updatedContent, "        'Mailpit' => Command::from('mailpit')->lazy(),"));
-    } finally {
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $updatedContent = file_get_contents($configPath);
+    $this->assertStringContainsString("        'Mailpit' => Command::from('mailpit')->lazy(),", $updatedContent);
+    $this->assertSame(1, substr_count($updatedContent, "        'Mailpit' => Command::from('mailpit')->lazy(),"));
 });
 
 test('command is idempotent when mailpit line already exists', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
-    $templateContent = file_get_contents($templatePath);
+    $configPath = starterKitSoloConfigPath();
+    $templateContent = starterKitSoloTemplateContent();
 
     $contentWithMailpit = str_replace(
         '        // Lazy commands do not automatically start when Solo starts.',
         "        // Lazy commands do not automatically start when Solo starts.\n        'Mailpit' => Command::from('mailpit')->lazy(),",
         $templateContent
     );
-    file_put_contents($configPath, $contentWithMailpit);
+    starterKitWriteSoloConfig($contentWithMailpit);
 
-    try {
-        $this->artisan('starter-kit-setup:add-mailpit')
-            ->expectsOutput('Mailpit command is already present in solo.php configuration.')
-            ->assertExitCode(0);
+    $this->artisan('starter-kit-setup:add-mailpit')
+        ->expectsOutput('Mailpit command is already present in solo.php configuration.')
+        ->assertExitCode(0);
 
-        $updatedContent = file_get_contents($configPath);
-        $this->assertSame(1, substr_count($updatedContent, "        'Mailpit' => Command::from('mailpit')->lazy(),"));
-    } finally {
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $updatedContent = file_get_contents($configPath);
+    $this->assertSame(1, substr_count($updatedContent, "        'Mailpit' => Command::from('mailpit')->lazy(),"));
 });
 
 test('command fails when config file not found', function () {
-    $configPath = config_path('solo.php');
-
-    if (file_exists($configPath)) {
-        unlink($configPath);
-    }
-
-    try {
-        $this->artisan('starter-kit-setup:add-mailpit')
-            ->expectsOutput('Config file solo.php not found.')
-            ->assertExitCode(1);
-    } finally {
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $this->artisan('starter-kit-setup:add-mailpit')
+        ->expectsOutput('Config file solo.php not found.')
+        ->assertExitCode(1);
 });
 
 test('command fails when config path cannot be read as file', function () {
-    $configPath = config_path('solo.php');
-
-    if (file_exists($configPath)) {
-        unlink($configPath);
-    }
-
+    $configPath = starterKitSoloConfigPath();
     mkdir($configPath);
 
-    try {
-        $this->artisan('starter-kit-setup:add-mailpit')
-            ->expectsOutput('Unable to read config file solo.php.')
-            ->assertExitCode(1);
-    } finally {
-        if (is_dir($configPath)) {
-            rmdir($configPath);
-        }
-    }
+    $this->artisan('starter-kit-setup:add-mailpit')
+        ->expectsOutput('Unable to read config file solo.php.')
+        ->assertExitCode(1);
 });
 
 test('command fails when config file is not readable', function () {
@@ -101,46 +68,28 @@ test('command fails when config file is not readable', function () {
         $this->markTestSkipped('Cannot test file permissions as root.');
     }
 
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
-    $templateContent = file_get_contents($templatePath);
-
-    file_put_contents($configPath, $templateContent);
+    $configPath = starterKitSoloConfigPath();
+    starterKitWriteSoloConfig(starterKitSoloTemplateContent());
     chmod($configPath, 0000);
 
-    try {
-        $this->artisan('starter-kit-setup:add-mailpit')
-            ->expectsOutput('Config file solo.php could not be read.')
-            ->assertExitCode(1);
-    } finally {
-        chmod($configPath, 0644);
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $this->artisan('starter-kit-setup:add-mailpit')
+        ->expectsOutput('Config file solo.php could not be read.')
+        ->assertExitCode(1);
 });
 
 test('command fails when insertion anchor is not found', function () {
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
-    $templateContent = file_get_contents($templatePath);
+    $templateContent = starterKitSoloTemplateContent();
 
     $contentWithoutAnchor = str_replace(
         '        // Lazy commands do not automatically start when Solo starts.',
         '',
         $templateContent
     );
-    file_put_contents($configPath, $contentWithoutAnchor);
+    starterKitWriteSoloConfig($contentWithoutAnchor);
 
-    try {
-        $this->artisan('starter-kit-setup:add-mailpit')
-            ->expectsOutput('Unable to update solo.php: insertion anchor not found.')
-            ->assertExitCode(1);
-    } finally {
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $this->artisan('starter-kit-setup:add-mailpit')
+        ->expectsOutput('Unable to update solo.php: insertion anchor not found.')
+        ->assertExitCode(1);
 });
 
 test('command fails when config file cannot be written', function () {
@@ -152,21 +101,11 @@ test('command fails when config file cannot be written', function () {
         $this->markTestSkipped('Cannot test file permissions as root.');
     }
 
-    $configPath = config_path('solo.php');
-    $templatePath = workbench_path('config/solo.php');
-    $templateContent = file_get_contents($templatePath);
-
-    file_put_contents($configPath, $templateContent);
+    $configPath = starterKitSoloConfigPath();
+    starterKitWriteSoloConfig(starterKitSoloTemplateContent());
     chmod($configPath, 0444);
 
-    try {
-        $this->artisan('starter-kit-setup:add-mailpit')
-            ->expectsOutput('Unable to update solo.php: write failed.')
-            ->assertExitCode(1);
-    } finally {
-        chmod($configPath, 0644);
-        if (file_exists($configPath)) {
-            unlink($configPath);
-        }
-    }
+    $this->artisan('starter-kit-setup:add-mailpit')
+        ->expectsOutput('Unable to update solo.php: write failed.')
+        ->assertExitCode(1);
 });
