@@ -67,3 +67,11 @@ test('setup command fails when second command fails', function () {
     $updatedContent = starterKitReadFile(starterKitSoloConfigPath());
     expect($updatedContent)->toBe($contentWithoutMailpitAnchor);
 });
+
+test('solo config helper throws when file cannot be written', function () {
+    $configPath = starterKitSoloConfigPath();
+    mkdir($configPath);
+
+    expect(fn () => starterKitWriteSoloConfig('test content'))
+        ->toThrow(RuntimeException::class, "Unable to write file: {$configPath}");
+});
