@@ -1,13 +1,14 @@
 <?php
-
 namespace Onelegstudios\StarterKitSetup\Commands;
 
-use Illuminate\Console\Command;
-
 use function Laravel\Prompts\confirm;
+use Illuminate\Console\Command;
+use Onelegstudios\StarterKitSetup\Concerns\InteractsWithSoloConfig;
 
 class UsingBuiltInServerCommand extends Command
 {
+    use InteractsWithSoloConfig;
+
     /** Matches the HTTP line whether commented or not, tolerant of whitespace variations. */
     private const HTTP_UNCOMMENTED_PATTERN = '/^(\h*)\'HTTP\'\h*=>\h*\'php artisan serve\',/m';
 
@@ -19,37 +20,15 @@ class UsingBuiltInServerCommand extends Command
 
     public function handle(): int
     {
-        $configPath = config_path('solo.php');
+        $content = $this->readSoloConfigContent();
 
-        if (! file_exists($configPath)) {
-            $this->error('Config file solo.php not found.');
-
-            return self::FAILURE;
-        }
-
-        if (! is_file($configPath)) {
-            $this->error('Unable to read config file solo.php.');
-
-            return self::FAILURE;
-        }
-
-        if (! is_readable($configPath)) {
-            $this->error('Config file solo.php could not be read.');
-
-            return self::FAILURE;
-        }
-
-        $content = file_get_contents($configPath);
-
-        if ($content === false) {
-            $this->error('Config file solo.php could not be read.');
-
+        if ($content === null) {
             return self::FAILURE;
         }
 
         $usingBuiltInServer = confirm(
             label: 'Are you using the built-in HTTP server?',
-            default: true
+        default: true
         );
 
         if ($usingBuiltInServer) {
@@ -59,7 +38,7 @@ class UsingBuiltInServerCommand extends Command
                 return self::SUCCESS;
             }
 
-            $updated = preg_replace(self::HTTP_COMMENTED_PATTERN, '$1'."'HTTP' => 'php artisan serve',", $content, -1, $replacements);
+            $updated = preg_replace(self::HTTP_COMMENTED_PATTERN, '$1' . "'HTTP' => 'php artisan serve',", $content, -1, $replacements);
         } else {
             if (preg_match(self::HTTP_COMMENTED_PATTERN, $content)) {
                 $this->info('Great! No changes needed.');
@@ -67,7 +46,7 @@ class UsingBuiltInServerCommand extends Command
                 return self::SUCCESS;
             }
 
-            $updated = preg_replace(self::HTTP_UNCOMMENTED_PATTERN, '$1'."// 'HTTP' => 'php artisan serve',", $content, -1, $replacements);
+            $updated = preg_replace(self::HTTP_UNCOMMENTED_PATTERN, '$1' . "// 'HTTP' => 'php artisan serve',", $content, -1, $replacements);
         }
 
         if ($replacements === 0 || $updated === null) {
@@ -76,17 +55,7 @@ class UsingBuiltInServerCommand extends Command
             return self::SUCCESS;
         }
 
-        try {
-            $bytesWritten = file_put_contents($configPath, $updated);
-        } catch (\ErrorException) {
-            $this->error('Unable to update solo.php: write failed.');
-
-            return self::FAILURE;
-        }
-
-        if ($bytesWritten === false) {
-            $this->error('Unable to update solo.php: write failed.');
-
+        if (! $this->writeSoloConfigContent($updated)) {
             return self::FAILURE;
         }
 
