@@ -3,9 +3,12 @@
 namespace Onelegstudios\StarterKitSetup\Commands;
 
 use Illuminate\Console\Command;
+use Onelegstudios\StarterKitSetup\Concerns\WritesFilesAtomically;
 
 class SetupCommand extends Command
 {
+    use WritesFilesAtomically;
+
     protected $signature = 'starter-kit-setup:setup';
 
     protected $description = 'Run all starter-kit-setup commands.';
@@ -65,12 +68,6 @@ class SetupCommand extends Command
             return true;
         }
 
-        try {
-            $bytesWritten = file_put_contents($configPath, $originalContent);
-        } catch (\ErrorException) {
-            return false;
-        }
-
-        return $bytesWritten !== false;
+        return $this->replaceFileContent($configPath, $originalContent);
     }
 }

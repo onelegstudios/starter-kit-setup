@@ -1,14 +1,17 @@
 <?php
 
+use Onelegstudios\StarterKitSetup\Tests\FilesystemFakes;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 
 uses(WithWorkbench::class);
 
 beforeEach(function (): void {
+    FilesystemFakes::reset();
     starterKitResetSoloConfigPath();
 });
 
 afterEach(function (): void {
+    FilesystemFakes::reset();
     starterKitResetSoloConfigPath();
 });
 
@@ -74,4 +77,39 @@ test('solo config helper throws when file cannot be written', function () {
 
     expect(fn () => starterKitWriteSoloConfig('test content'))
         ->toThrow(RuntimeException::class, "Unable to write file: {$configPath}");
+});
+
+test('setup command fails when rollback write is incomplete', function () {
+    $configPath = starterKitSoloConfigPath();
+    $templateContent = starterKitSoloTemplateContent();
+
+    $content = str_replace(
+        [
+            "        // 'HTTP' => 'php artisan serve',",
+            '        // Lazy commands do not automatically start when Solo starts.',
+            "    'commands' => [",
+        ],
+        [
+            "        'HTTP' => 'php artisan serve',",
+            '',
+            "    'lazy_commands' => [",
+        ],
+        $templateContent
+    );
+
+    starterKitWriteSoloConfig($content);
+    FilesystemFakes::addPartialWrite($content, 10);
+
+    starterKitArtisan('starter-kit-setup:setup')
+        ->expectsOutput('Running starter-kit-setup commands...')
+        ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
+        ->expectsOutput('Successfully disabled HTTP server in solo.php configuration.')
+        ->expectsOutput('Unable to update solo.php: insertion anchor not found.')
+        ->expectsOutput('Rollback failed after add-mailpit command failed.')
+        ->assertExitCode(1);
+
+    $updatedContent = starterKitReadFile($configPath);
+    $this->assertNotSame('', $updatedContent);
+    $this->assertStringContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
+    $this->assertStringNotContainsString("        'Mailpit' => Command::from('mailpit')->lazy(),", $updatedContent);
 });

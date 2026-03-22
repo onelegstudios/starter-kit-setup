@@ -1,14 +1,17 @@
 <?php
 
+use Onelegstudios\StarterKitSetup\Tests\FilesystemFakes;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 
 uses(WithWorkbench::class);
 
 beforeEach(function (): void {
+    FilesystemFakes::reset();
     starterKitResetSoloConfigPath();
 });
 
 afterEach(function (): void {
+    FilesystemFakes::reset();
     starterKitResetSoloConfigPath();
 });
 
@@ -144,6 +147,7 @@ test('command fails when config file cannot be written', function () {
     }
 
     $configPath = starterKitSoloConfigPath();
+    $configDirectory = dirname($configPath);
     $templateContent = starterKitSoloTemplateContent();
 
     $content = str_replace(
@@ -153,12 +157,16 @@ test('command fails when config file cannot be written', function () {
     );
 
     starterKitWriteSoloConfig($content);
-    chmod($configPath, 0444);
+    chmod($configDirectory, 0555);
 
-    starterKitArtisan('starter-kit-setup:using-built-in-server')
-        ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
-        ->expectsOutput('Unable to update solo.php: write failed.')
-        ->assertExitCode(1);
+    try {
+        starterKitArtisan('starter-kit-setup:using-built-in-server')
+            ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
+            ->expectsOutput('Unable to update solo.php: write failed.')
+            ->assertExitCode(1);
+    } finally {
+        chmod($configDirectory, 0755);
+    }
 });
 
 test('command fails when http entry is missing from solo config', function () {
@@ -254,4 +262,55 @@ test('command comments http line with windows line endings when not using built-
     $this->assertStringContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
     $this->assertStringContainsString("\r\n", $updatedContent);
     $this->assertStringNotContainsString("\n        'HTTP' => 'php artisan serve',\n", str_replace("\r\n", "\n", $updatedContent));
+});
+
+test('command falls back when rename cannot replace existing solo config', function () {
+    $configPath = starterKitSoloConfigPath();
+    $templateContent = starterKitSoloTemplateContent();
+
+    $content = str_replace(
+        "        // 'HTTP' => 'php artisan serve',",
+        "        'HTTP' => 'php artisan serve',",
+        $templateContent
+    );
+
+    starterKitWriteSoloConfig($content);
+    FilesystemFakes::failRename();
+
+    starterKitArtisan('starter-kit-setup:using-built-in-server')
+        ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
+        ->expectsOutput('Successfully disabled HTTP server in solo.php configuration.')
+        ->assertExitCode(0);
+
+    $updatedContent = starterKitReadFile($configPath);
+    $this->assertStringContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
+    $this->assertStringNotContainsString("        'HTTP' => 'php artisan serve',", $updatedContent);
+});
+
+test('command fails when the solo config write is incomplete', function () {
+    $configPath = starterKitSoloConfigPath();
+    $templateContent = starterKitSoloTemplateContent();
+
+    $content = str_replace(
+        "        // 'HTTP' => 'php artisan serve',",
+        "        'HTTP' => 'php artisan serve',",
+        $templateContent
+    );
+
+    starterKitWriteSoloConfig($content);
+
+    $expectedUpdatedContent = str_replace(
+        "        'HTTP' => 'php artisan serve',",
+        "        // 'HTTP' => 'php artisan serve',",
+        $content
+    );
+
+    FilesystemFakes::addPartialWrite($expectedUpdatedContent, 12);
+
+    starterKitArtisan('starter-kit-setup:using-built-in-server')
+        ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
+        ->expectsOutput('Unable to update solo.php: write failed.')
+        ->assertExitCode(1);
+
+    $this->assertSame($content, starterKitReadFile($configPath));
 });
