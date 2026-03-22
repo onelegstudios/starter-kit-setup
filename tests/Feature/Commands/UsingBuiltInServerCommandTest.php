@@ -165,15 +165,17 @@ test('command fails when http entry is missing from solo config', function () {
     $templateContent = starterKitSoloTemplateContent();
 
     $content = str_replace(
-        "        'HTTP' => 'php artisan serve',\n",
+        "        'HTTP' => 'php artisan serve',",
         '',
         $templateContent
     );
     $content = str_replace(
-        "        // 'HTTP' => 'php artisan serve',\n",
+        "        // 'HTTP' => 'php artisan serve',",
         '',
         $content
     );
+
+    $this->assertStringNotContainsString("'HTTP' => 'php artisan serve',", $content);
 
     starterKitWriteSoloConfig($content);
 
