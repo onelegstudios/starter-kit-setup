@@ -52,9 +52,9 @@ class UsingBuiltInServerCommand extends Command
         }
 
         if ($replacements === 0 || $updated === null) {
-            $this->info('Great! No changes needed.');
+            $this->error('HTTP command entry not found in solo.php configuration.');
 
-            return self::SUCCESS;
+            return self::FAILURE;
         }
 
         if (! $this->writeSoloConfigContent($updated)) {
