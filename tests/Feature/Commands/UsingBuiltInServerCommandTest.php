@@ -160,3 +160,25 @@ test('command fails when config file cannot be written', function () {
         ->expectsOutput('Unable to update solo.php: write failed.')
         ->assertExitCode(1);
 });
+
+test('command fails when http entry is missing from solo config', function () {
+    $templateContent = starterKitSoloTemplateContent();
+
+    $content = str_replace(
+        "        'HTTP' => 'php artisan serve',\n",
+        '',
+        $templateContent
+    );
+    $content = str_replace(
+        "        // 'HTTP' => 'php artisan serve',\n",
+        '',
+        $content
+    );
+
+    starterKitWriteSoloConfig($content);
+
+    starterKitArtisan('starter-kit-setup:using-built-in-server')
+        ->expectsConfirmation('Are you using the built-in HTTP server?', 'yes')
+        ->expectsOutput('HTTP command entry not found in solo.php configuration.')
+        ->assertExitCode(1);
+});
