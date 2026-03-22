@@ -12,7 +12,7 @@ class UsingBuiltInServerCommand extends Command
     use InteractsWithSoloConfig;
 
     /** Matches the HTTP line whether commented or not, tolerant of quote, spacing, and value variations. */
-    private const HTTP_ENTRY_PATTERN = '/^(\h*)(?:(\/\/)\h*)?([\'\"])HTTP\3(\h*=>\h*)(.+,)\h*$/m';
+    private const HTTP_ENTRY_PATTERN = '/^(\h*)(?:(\/\/)\h*)?([\'\"])HTTP\3(\h*=>\h*)(.+,)\h*\r?$/m';
 
     protected $signature = 'starter-kit-setup:using-built-in-server';
 
