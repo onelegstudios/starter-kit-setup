@@ -228,3 +228,26 @@ test('command comments customized http entry when not using built-in server', fu
     $this->assertStringContainsString('        // "HTTP" => env("SOLO_HTTP_COMMAND", "php artisan serve --host=127.0.0.1 --port=8080"),', $updatedContent);
     $this->assertStringNotContainsString('        "HTTP" => env("SOLO_HTTP_COMMAND", "php artisan serve --host=127.0.0.1 --port=8080"),', $updatedContent);
 });
+
+test('command comments http line with windows line endings when not using built-in server', function () {
+    $configPath = starterKitSoloConfigPath();
+    $templateContent = str_replace("\n", "\r\n", starterKitSoloTemplateContent());
+
+    $content = str_replace(
+        "        // 'HTTP' => 'php artisan serve',",
+        "        'HTTP' => 'php artisan serve',",
+        $templateContent
+    );
+
+    starterKitWriteSoloConfig($content);
+
+    starterKitArtisan('starter-kit-setup:using-built-in-server')
+        ->expectsConfirmation('Are you using the built-in HTTP server?', 'no')
+        ->expectsOutput('Successfully disabled HTTP server in solo.php configuration.')
+        ->assertExitCode(0);
+
+    $updatedContent = starterKitReadFile($configPath);
+    $this->assertStringContainsString("        // 'HTTP' => 'php artisan serve',", $updatedContent);
+    $this->assertStringContainsString("\r\n", $updatedContent);
+    $this->assertStringNotContainsString("\n        'HTTP' => 'php artisan serve',\n", str_replace("\r\n", "\n", $updatedContent));
+});
