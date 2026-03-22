@@ -2,6 +2,26 @@
 
 All notable changes to `starter-kit-setup` will be documented in this file.
 
+## v2.0.2 - 2026-03-22
+
+### What's Changed
+
+* Add error handling for unreadable config file and fix styling by @oneleggedswede in https://github.com/onelegstudios/starter-kit-setup/pull/17
+* Add error handling for write failures and fix styling by @oneleggedswede in https://github.com/onelegstudios/starter-kit-setup/pull/18
+* Add initial Pint configuration with Laravel preset by @oneleggedswede in https://github.com/onelegstudios/starter-kit-setup/pull/19
+* Skip POSIX permission tests on non-POSIX platforms by @oneleggedswede in https://github.com/onelegstudios/starter-kit-setup/pull/20
+* Remove dead facade alias from composer.json by @oneleggedswede in https://github.com/onelegstudios/starter-kit-setup/pull/21
+* Validate configuration before server prompt and fix styling by @oneleggedswede in https://github.com/onelegstudios/starter-kit-setup/pull/22
+* Improve code formatting and consistency in TestCase by @oneleggedswede in https://github.com/onelegstudios/starter-kit-setup/pull/23
+* Refactor composer.json autoload configurations and scripts by @oneleggedswede in https://github.com/onelegstudios/starter-kit-setup/pull/24
+* Add test for setup command failure handling by @oneleggedswede in https://github.com/onelegstudios/starter-kit-setup/pull/25
+* Remove factory guessing setup from TestCase by @oneleggedswede in https://github.com/onelegstudios/starter-kit-setup/pull/26
+* Fix documentation and tests for StarterKitSetup and extensions by @oneleggedswede in https://github.com/onelegstudios/starter-kit-setup/pull/27
+* Refactor command tests to utilize helper functions for config by @oneleggedswede in https://github.com/onelegstudios/starter-kit-setup/pull/28
+* Update PHPStan configuration and improve command tests by @oneleggedswede in https://github.com/onelegstudios/starter-kit-setup/pull/29
+
+**Full Changelog**: https://github.com/onelegstudios/starter-kit-setup/compare/v2.0.1...v2.0.2
+
 ## v2.0.1 - 2026-03-20
 
 - Update solo.php to the latest version - Upstream package dependency update
@@ -71,7 +91,7 @@ Minor refactoring and code quality improvements
 ### Tests
 
 - The test is working locally. Should figure out how to set them up properly with GitHub later.
--
+- 
 
 ### New Contributors
 
