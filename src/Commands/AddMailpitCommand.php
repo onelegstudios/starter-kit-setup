@@ -1,4 +1,5 @@
 <?php
+
 namespace Onelegstudios\StarterKitSetup\Commands;
 
 use Illuminate\Console\Command;
@@ -39,7 +40,7 @@ class AddMailpitCommand extends Command
 
         $updated = preg_replace(
             self::LAZY_ANCHOR_PATTERN,
-            '$1' . "\n" . self::SOLO_MAILPIT_LINE,
+            '$1'."\n".self::SOLO_MAILPIT_LINE,
             $content,
             1,
             $replacements
@@ -81,7 +82,7 @@ class AddMailpitCommand extends Command
                     $commandsContent .= "\n";
                 }
 
-                return $matches[1] . $commandsContent . self::SOLO_MAILPIT_LINE . "\n" . $matches[3];
+                return $matches[1].$commandsContent.self::SOLO_MAILPIT_LINE."\n".$matches[3];
             },
             $content,
             1,

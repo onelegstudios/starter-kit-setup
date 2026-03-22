@@ -26,7 +26,7 @@ test('command adds mailpit line to solo config', function () {
 });
 
 test('command is idempotent when mailpit line already exists', function () {
-    $configPath      = starterKitSoloConfigPath();
+    $configPath = starterKitSoloConfigPath();
     $templateContent = starterKitSoloTemplateContent();
 
     $contentWithMailpit = str_replace(
