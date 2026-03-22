@@ -26,7 +26,7 @@ test('command adds mailpit line to solo config', function () {
 });
 
 test('command is idempotent when mailpit line already exists', function () {
-    $configPath = starterKitSoloConfigPath();
+    $configPath      = starterKitSoloConfigPath();
     $templateContent = starterKitSoloTemplateContent();
 
     $contentWithMailpit = str_replace(
@@ -86,6 +86,27 @@ test('command falls back to commands array when insertion anchor is not found', 
         $templateContent
     );
     starterKitWriteSoloConfig($contentWithoutAnchor);
+
+    starterKitArtisan('starter-kit-setup:add-mailpit')
+        ->expectsOutput('Successfully added Mailpit command to solo.php configuration.')
+        ->assertExitCode(0);
+
+    $updatedContent = starterKitReadFile(starterKitSoloConfigPath());
+    $this->assertStringContainsString("        'Mailpit' => Command::from('mailpit')->lazy(),", $updatedContent);
+    $this->assertSame(1, substr_count($updatedContent, "        'Mailpit' => Command::from('mailpit')->lazy(),"));
+});
+
+test('command fallback works with windows line endings when insertion anchor is not found', function () {
+    $templateContent = starterKitSoloTemplateContent();
+
+    $contentWithoutAnchor = str_replace(
+        '        // Lazy commands do not automatically start when Solo starts.',
+        '',
+        $templateContent
+    );
+
+    $windowsLineEndingsContent = str_replace("\n", "\r\n", $contentWithoutAnchor);
+    starterKitWriteSoloConfig($windowsLineEndingsContent);
 
     starterKitArtisan('starter-kit-setup:add-mailpit')
         ->expectsOutput('Successfully added Mailpit command to solo.php configuration.')

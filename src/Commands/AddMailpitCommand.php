@@ -1,5 +1,4 @@
 <?php
-
 namespace Onelegstudios\StarterKitSetup\Commands;
 
 use Illuminate\Console\Command;
@@ -18,7 +17,7 @@ class AddMailpitCommand extends Command
     private const LAZY_ANCHOR_PATTERN = '/^(\h*\/\/\h*Lazy commands do not automatically start[^\n]*)/m';
 
     /** Matches the full commands array block so we can append before its closing bracket. */
-    private const COMMANDS_BLOCK_PATTERN = '/^(\h*\'commands\'\h*=>\h*\[\h*\R)(.*?)(^\h*],\h*$)/ms';
+    private const COMMANDS_BLOCK_PATTERN = '/^(\h*\'commands\'\h*=>\h*\[\h*\R)(.*?)(^\h*],(?:\h*\R|\h*$))/ms';
 
     protected $signature = 'starter-kit-setup:add-mailpit';
 
@@ -40,7 +39,7 @@ class AddMailpitCommand extends Command
 
         $updated = preg_replace(
             self::LAZY_ANCHOR_PATTERN,
-            '$1'."\n".self::SOLO_MAILPIT_LINE,
+            '$1' . "\n" . self::SOLO_MAILPIT_LINE,
             $content,
             1,
             $replacements
@@ -82,7 +81,7 @@ class AddMailpitCommand extends Command
                     $commandsContent .= "\n";
                 }
 
-                return $matches[1].$commandsContent.self::SOLO_MAILPIT_LINE."\n".$matches[3];
+                return $matches[1] . $commandsContent . self::SOLO_MAILPIT_LINE . "\n" . $matches[3];
             },
             $content,
             1,
