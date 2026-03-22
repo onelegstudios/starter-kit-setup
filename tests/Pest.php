@@ -51,7 +51,12 @@ if (! function_exists('starterKitSoloTemplateContent')) {
 if (! function_exists('starterKitWriteSoloConfig')) {
     function starterKitWriteSoloConfig(string $content): void
     {
-        file_put_contents(starterKitSoloConfigPath(), $content);
+        $path = starterKitSoloConfigPath();
+        $result = @file_put_contents($path, $content);
+
+        if ($result === false) {
+            throw new RuntimeException("Unable to write file: {$path}");
+        }
     }
 }
 
