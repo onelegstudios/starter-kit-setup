@@ -1,4 +1,5 @@
 <?php
+
 namespace Onelegstudios\StarterKitSetup\Concerns;
 
 trait InteractsWithSoloConfig

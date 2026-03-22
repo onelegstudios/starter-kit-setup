@@ -13,7 +13,7 @@ afterEach(function (): void {
 });
 
 test('setup command executes all setup commands', function () {
-    $configPath      = starterKitSoloConfigPath();
+    $configPath = starterKitSoloConfigPath();
     $templateContent = starterKitSoloTemplateContent();
 
     $content = str_replace(
@@ -72,6 +72,6 @@ test('solo config helper throws when file cannot be written', function () {
     $configPath = starterKitSoloConfigPath();
     mkdir($configPath);
 
-    expect(fn() => starterKitWriteSoloConfig('test content'))
+    expect(fn () => starterKitWriteSoloConfig('test content'))
         ->toThrow(RuntimeException::class, "Unable to write file: {$configPath}");
 });
