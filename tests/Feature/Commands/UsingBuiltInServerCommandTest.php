@@ -231,7 +231,11 @@ test('command comments customized http entry when not using built-in server', fu
 
 test('command comments http line with windows line endings when not using built-in server', function () {
     $configPath = starterKitSoloConfigPath();
-    $templateContent = str_replace("\n", "\r\n", starterKitSoloTemplateContent());
+    $templateContent = str_replace(
+        "\n",
+        "\r\n",
+        preg_replace("/\r\n?|\n/", "\n", starterKitSoloTemplateContent()) ?? starterKitSoloTemplateContent()
+    );
 
     $content = str_replace(
         "        // 'HTTP' => 'php artisan serve',",
