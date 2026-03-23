@@ -1,5 +1,4 @@
 <?php
-
 namespace Onelegstudios\StarterKitSetup\Tests;
 
 final class FilesystemFakes
@@ -12,7 +11,7 @@ final class FilesystemFakes
     public static function reset(): void
     {
         self::$partialWritesByContent = [];
-        self::$renameShouldFail = false;
+        self::$renameShouldFail       = false;
     }
 
     public static function failRename(): void
@@ -25,11 +24,13 @@ final class FilesystemFakes
         self::$partialWritesByContent[$content] = $bytesWritten;
     }
 
-    public static function filePutContents(string $filename, string $content, int $flags = 0, mixed $context = null): int|false
+    public static function filePutContents(string $filename, string $content, int $flags = 0, mixed $context = null): int | false
     {
-        if (array_key_exists($content, self::$partialWritesByContent)) {
-            $bytesWritten = self::$partialWritesByContent[$content];
-            unset(self::$partialWritesByContent[$content]);
+        $partialWriteKey = self::partialWriteKeyFor($content);
+
+        if ($partialWriteKey !== null) {
+            $bytesWritten = self::$partialWritesByContent[$partialWriteKey];
+            unset(self::$partialWritesByContent[$partialWriteKey]);
 
             \file_put_contents($filename, substr($content, 0, $bytesWritten), $flags, $context);
 
@@ -49,13 +50,35 @@ final class FilesystemFakes
 
         return \rename($from, $to);
     }
+
+    private static function partialWriteKeyFor(string $content): ?string
+    {
+        if (array_key_exists($content, self::$partialWritesByContent)) {
+            return $content;
+        }
+
+        $normalizedContent = self::normalizeLineEndings($content);
+
+        foreach (array_keys(self::$partialWritesByContent) as $registeredContent) {
+            if (self::normalizeLineEndings($registeredContent) === $normalizedContent) {
+                return $registeredContent;
+            }
+        }
+
+        return null;
+    }
+
+    private static function normalizeLineEndings(string $content): string
+    {
+        return str_replace("\r\n", "\n", $content);
+    }
 }
 
 namespace Onelegstudios\StarterKitSetup\Concerns;
 
 use Onelegstudios\StarterKitSetup\Tests\FilesystemFakes;
 
-function file_put_contents(string $filename, string $data, int $flags = 0, mixed $context = null): int|false
+function file_put_contents(string $filename, string $data, int $flags = 0, mixed $context = null): int | false
 {
     return FilesystemFakes::filePutContents($filename, $data, $flags, $context);
 }
