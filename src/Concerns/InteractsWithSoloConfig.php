@@ -4,6 +4,8 @@ namespace Onelegstudios\StarterKitSetup\Concerns;
 
 trait InteractsWithSoloConfig
 {
+    use WritesFilesAtomically;
+
     protected function soloConfigPath(): string
     {
         return config_path('solo.php');
@@ -44,15 +46,7 @@ trait InteractsWithSoloConfig
 
     protected function writeSoloConfigContent(string $content): bool
     {
-        try {
-            $bytesWritten = file_put_contents($this->soloConfigPath(), $content);
-        } catch (\ErrorException) {
-            $this->error('Unable to update solo.php: write failed.');
-
-            return false;
-        }
-
-        if ($bytesWritten === false) {
+        if (! $this->replaceFileContent($this->soloConfigPath(), $content)) {
             $this->error('Unable to update solo.php: write failed.');
 
             return false;

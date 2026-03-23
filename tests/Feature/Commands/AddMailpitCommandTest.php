@@ -149,10 +149,15 @@ test('command fails when config file cannot be written', function () {
     }
 
     $configPath = starterKitSoloConfigPath();
+    $configDirectory = dirname($configPath);
     starterKitWriteSoloConfig(starterKitSoloTemplateContent());
-    chmod($configPath, 0444);
+    chmod($configDirectory, 0555);
 
-    starterKitArtisan('starter-kit-setup:add-mailpit')
-        ->expectsOutput('Unable to update solo.php: write failed.')
-        ->assertExitCode(1);
+    try {
+        starterKitArtisan('starter-kit-setup:add-mailpit')
+            ->expectsOutput('Unable to update solo.php: write failed.')
+            ->assertExitCode(1);
+    } finally {
+        chmod($configDirectory, 0755);
+    }
 });

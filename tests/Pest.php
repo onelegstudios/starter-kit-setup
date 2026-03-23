@@ -5,6 +5,8 @@ use Onelegstudios\StarterKitSetup\Tests\TestCase;
 
 use function Orchestra\Testbench\workbench_path;
 
+require_once __DIR__.'/FilesystemFakes.php';
+
 uses(TestCase::class)->in(__DIR__);
 
 if (! function_exists('starterKitSoloConfigPath')) {
