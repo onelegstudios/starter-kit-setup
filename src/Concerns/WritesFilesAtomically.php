@@ -13,7 +13,7 @@ trait WritesFilesAtomically
             return false;
         }
 
-        if (dirname($temporaryPath) !== $directory) {
+        if (! $this->isSameDirectory(dirname($temporaryPath), $directory)) {
             @unlink($temporaryPath);
 
             return false;
@@ -75,5 +75,31 @@ trait WritesFilesAtomically
     private function readFileContent(string $path): string|false
     {
         return file_get_contents($path);
+    }
+
+    private function isSameDirectory(string $left, string $right): bool
+    {
+        $normalizedLeft = $this->normalizePath($left);
+        $normalizedRight = $this->normalizePath($right);
+
+        if ($normalizedLeft === $normalizedRight) {
+            return true;
+        }
+
+        $resolvedLeft = realpath($left);
+        $resolvedRight = realpath($right);
+
+        if ($resolvedLeft === false || $resolvedRight === false) {
+            return false;
+        }
+
+        return $this->normalizePath($resolvedLeft) === $this->normalizePath($resolvedRight);
+    }
+
+    private function normalizePath(string $path): string
+    {
+        $normalizedPath = str_replace('\\', '/', $path);
+
+        return rtrim(strtolower($normalizedPath), '/');
     }
 }
