@@ -1,4 +1,5 @@
 <?php
+
 namespace Onelegstudios\StarterKitSetup\Tests;
 
 final class FilesystemFakes
@@ -11,7 +12,7 @@ final class FilesystemFakes
     public static function reset(): void
     {
         self::$partialWritesByContent = [];
-        self::$renameShouldFail       = false;
+        self::$renameShouldFail = false;
     }
 
     public static function failRename(): void
@@ -24,7 +25,7 @@ final class FilesystemFakes
         self::$partialWritesByContent[$content] = $bytesWritten;
     }
 
-    public static function filePutContents(string $filename, string $content, int $flags = 0, mixed $context = null): int | false
+    public static function filePutContents(string $filename, string $content, int $flags = 0, mixed $context = null): int|false
     {
         $partialWriteKey = self::partialWriteKeyFor($content);
 
@@ -78,7 +79,7 @@ namespace Onelegstudios\StarterKitSetup\Concerns;
 
 use Onelegstudios\StarterKitSetup\Tests\FilesystemFakes;
 
-function file_put_contents(string $filename, string $data, int $flags = 0, mixed $context = null): int | false
+function file_put_contents(string $filename, string $data, int $flags = 0, mixed $context = null): int|false
 {
     return FilesystemFakes::filePutContents($filename, $data, $flags, $context);
 }
