@@ -30,19 +30,50 @@ trait WritesFilesAtomically
                 return false;
             }
 
-            if (@rename($temporaryPath, $path)) {
+            if ($this->moveFile($temporaryPath, $path)) {
                 return true;
             }
 
-            if (! @copy($temporaryPath, $path)) {
+            if (file_exists($path)) {
+                if (! $this->deleteFile($path)) {
+                    return false;
+                }
+
+                if ($this->moveFile($temporaryPath, $path)) {
+                    return true;
+                }
+            }
+
+            if (! $this->copyFile($temporaryPath, $path)) {
                 return false;
             }
 
-            return file_get_contents($path) === $content;
+            return $this->readFileContent($path) === $content;
         } finally {
             if (is_file($temporaryPath)) {
-                @unlink($temporaryPath);
+                $this->deleteFile($temporaryPath);
             }
         }
+    }
+
+    /** @phpstan-impure */
+    private function moveFile(string $from, string $to): bool
+    {
+        return @rename($from, $to);
+    }
+
+    private function deleteFile(string $path): bool
+    {
+        return @unlink($path);
+    }
+
+    private function copyFile(string $from, string $to): bool
+    {
+        return @copy($from, $to);
+    }
+
+    private function readFileContent(string $path): string|false
+    {
+        return file_get_contents($path);
     }
 }
